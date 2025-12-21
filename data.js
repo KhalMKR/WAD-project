@@ -14,7 +14,7 @@ const products = [
         category: "Accessories",
         imagePath: "assets/images/lanyard.png",
         stockQuantity: 100
-    }
+    },
 
     {
         productID: 103,
