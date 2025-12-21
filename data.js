@@ -15,4 +15,13 @@ const products = [
         imagePath: "assets/images/lanyard.png",
         stockQuantity: 100
     }
+
+    {
+        productID: 103,
+        name: "UniMerch Cap",
+        price: 30.00,
+        category: "Clothing",
+        imagePath: "assets/images/cap.png",
+        stockQuantity: 100
+    }
 ];
