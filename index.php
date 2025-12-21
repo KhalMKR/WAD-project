@@ -12,22 +12,48 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Grid</title>
+    <title>UniMerch Hub - Shop</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* New style for the Add to Cart button */
+        .add-to-cart-btn {
+            width: 100%;
+            background-color: #7742cc; /* Match brand color */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #5e33a3;
+        }
+        .cart-count-badge {
+            background: #ff4757;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 50%;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <navbar>
         <img src="assets/images/logo.png" alt="Logo" class="logo">
         <div id="authArea">
+            <a href="cart.php" style="color: white; text-decoration: none; margin-right: 20px;">
+                Cart <span id="cartCount" class="cart-count-badge">0</span>
+            </a>
+            
             <?php if ($isLoggedIn): ?>
                 <span style="color: white; margin-right: 20px;">
-                    Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
+                    Hi, <strong><?php echo htmlspecialchars($userName); ?></strong>
                 </span>
-                <?php if ($userType === 'admin'): ?>
-                    <a href="backend_8sp/index.php" class="login-btn" style="margin-right: 10px;">Admin Dashboard</a>
-                <?php endif; ?>
                 <a href="logout.php" class="login-btn">Logout</a>
             <?php else: ?>
                 <a href="login.html" class="login-btn">Login/Register</a>
@@ -35,90 +61,62 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
         </div>
     </navbar>
 
-    <div class="container">
-        <form>
-            <span class="search-bar">
-            <input type="text" placeholder="Search products...">
-            <button class="search-btn"><span class="material-symbols-outlined">search</span></button>
-            </span>
-        </form>
-        
-
-        <div class="grid">
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 1</div>
-                    <div class="product-price">$29.99</div>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 2</div>
-                    <div class="product-price">$39.99</div>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 3</div>
-                    <div class="product-price">$49.99</div>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 4</div>
-                    <div class="product-price">$59.99</div>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 5</div>
-                    <div class="product-price">$69.99</div>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-image">Product Image</div>
-                <div class="product-info">
-                    <div class="product-name">Product 6</div>
-                    <div class="product-price">$79.99</div>
-                </div>
-            </div>
+    <div class="grid">
+    <div class="product-card">
+        <div class="product-image">
+            <img src="assets/images/hoodie.png" alt="UNIMAS Hoodie" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div class="product-info">
+            <div class="product-name">UNIMAS Hoodie</div>
+            <div class="product-price">RM 85.00</div>
+            <button class="add-to-cart-btn" onclick="addToCart('UNIMAS Hoodie', 85.00, 'assets/images/hoodie.png')">Add to Cart</button>
         </div>
     </div>
 
-<script src="data.js"></script>
-<script src="utils.js"></script>
-<script src="admin.js"></script>
+    <div class="product-card">
+        <div class="product-image">
+            <img src="assets/images/lanyard.png" alt="FCSIT Lanyard" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div class="product-info">
+            <div class="product-name">FCSIT Lanyard</div>
+            <div class="product-price">RM 15.00</div>
+            <button class="add-to-cart-btn" onclick="addToCart('FCSIT Lanyard', 15.00, 'assets/images/lanyard.png')">Add to Cart</button>
+        </div>
+    </div>
+</div>
 
 <script>
-(function(){
-  const authArea = document.getElementById('authArea');
-  const logged = localStorage.getItem('isLoggedIn') === 'true';
-  if (logged) {
-    const name = (localStorage.getItem('userName') || 'User');
-    authArea.innerHTML = `
-      <div id="userMenu" style="display:flex;align-items:center;gap:10px;">
-        <img src="assets/images/user-icon.png" alt="User" style="width:36px;height:36px;border-radius:50%;">
-        <span style="color:#fff;font-weight:600;">${name}</span>
-        <button id="logoutBtn" style="background:transparent;border:none;color:#fff;cursor:pointer;">Logout</button>
-      </div>`;
-    document.getElementById('logoutBtn').addEventListener('click', function(){
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userName');
-      location.reload();
-    });
-  }
-})();
-</script>
+    // Initialize Cart Logic
+    function addToCart(name, price, image) {
+        // Get existing cart from localStorage or start empty
+        let cart = JSON.parse(localStorage.getItem('userCart')) || [];
+        
+        // Check if item already exists
+        const existingItemIndex = cart.findIndex(item => item.name === name);
+        
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].quantity += 1;
+        } else {
+            cart.push({ name, price, image, quantity: 1 });
+        }
+        
+        // Save back to localStorage
+        localStorage.setItem('userCart', JSON.stringify(cart));
+        
+        // Update the UI counter
+        updateCartCount();
+        
+        alert(name + " added to cart!");
+    }
 
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cartCount').innerText = totalItems;
+    }
+
+    // Run on page load
+    window.onload = updateCartCount;
+</script>
 </body>
 </html>
