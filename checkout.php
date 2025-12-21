@@ -50,56 +50,17 @@ $userName = $_SESSION['fullName'];
         .receipt-details { text-align: left; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         .receipt-line { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
 
+        /* Print Logic */
+        @media print {
+            body * { visibility: hidden; }
+            #successOverlay, #successOverlay * { visibility: visible; }
+            #successOverlay { position: absolute; left: 0; top: 0; width: 100%; background: white !important; display: flex !important; }
+            .receipt-card { box-shadow: none; border: 1px solid #000; width: 100%; max-width: none; }
+            .login-btn, .print-btn { display: none; }
+        }
+
         @media (max-width: 768px) { .checkout-container { grid-template-columns: 1fr; } }
-
     </style>
-
-    <style>
-    /* ... (Keep your previous styles here) ... */
-
-    /* New styles for the Print Button */
-    .print-btn {
-        width: 100%;
-        background: #6c757d;
-        color: white;
-        border: none;
-        padding: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        font-weight: 600;
-    }
-
-    /* Print logic: Hide everything except the receipt when printing */
-    @media print {
-        body * { visibility: hidden; }
-        #successOverlay, #successOverlay * { visibility: visible; }
-        #successOverlay { position: absolute; left: 0; top: 0; width: 100%; background: white; }
-        .receipt-card { box-shadow: none; border: 1px solid #000; width: 100%; max-width: none; }
-        .login-btn, .print-btn { display: none; } /* Don't print buttons */
-    }
-</style>
-
-<div id="successOverlay">
-    <div class="receipt-card">
-        <div class="receipt-header">✔ Transaction Successful</div>
-        <p style="margin-bottom:20px;">Thank you for your purchase!</p>
-        
-        <div class="receipt-details" id="printableReceipt">
-            <div class="receipt-line"><span>Order ID:</span> <strong id="receiptID"></strong></div>
-            <div class="receipt-line"><span>Date:</span> <span id="receiptDate"></span></div>
-            <div class="receipt-line"><span>Customer:</span> <span><?php echo htmlspecialchars($userName); ?></span></div>
-            <div class="receipt-line"><span>Payment:</span> <span id="receiptPayment"></span></div>
-            <div id="receiptItemsList" style="margin-top:15px; border-top: 1px solid #eee; padding-top:10px;"></div>
-            <div class="receipt-line" style="border:none; font-weight:bold; color:#7742cc; font-size:18px; margin-top:10px;">
-                <span>Total Paid:</span> <span id="receiptTotal"></span>
-            </div>
-        </div>
-
-        <button class="print-btn" onclick="window.print()">Print Receipt / Save as PDF</button>
-        <button class="login-btn" onclick="finishOrder()" style="width:100%; margin-top:10px;">Return to Home</button>
-    </div>
-</div>
 </head>
 <body>
     <navbar>
@@ -108,12 +69,22 @@ $userName = $_SESSION['fullName'];
     </navbar>
 
     <div class="container">
-        <div class="checkout-container" id="mainCheckout">
+        <div class="checkout-container">
             <div class="form-section">
                 <h2>Shipping Details</h2>
                 <form id="checkoutForm">
-                    <div class="form-group"><label>Full Name</label><input type="text" value="<?php echo htmlspecialchars($userName); ?>" required></div>
-                    <div class="form-group"><label>Shipping Address</label><input type="text" placeholder="Street Address / Hostel" required></div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="custName" value="<?php echo htmlspecialchars($userName); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="01X-XXXXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shipping Address</label>
+                        <input type="text" id="custAddress" placeholder="Street Address / Hostel" required>
+                    </div>
                     
                     <h2 style="margin: 30px 0 10px;">Payment Method</h2>
                     <div class="payment-methods" id="paymentMethods">
@@ -126,10 +97,20 @@ $userName = $_SESSION['fullName'];
             </div>
 
             <div class="form-section" style="height: fit-content;">
-                <h3>Review Order</h3>
+                <h3 style="margin-bottom: 15px;">Review Order</h3>
                 <div id="checkoutItems"></div>
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-                <div style="display:flex; justify-content:space-between; font-weight:bold; color:#7742cc; font-size:20px;">
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>Subtotal</span>
+                    <span id="checkSubtotal">RM 0.00</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>Shipping</span>
+                    <span style="color: #28a745; font-weight: 600;">FREE</span>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; font-weight:bold; color:#7742cc; font-size:20px; margin-top:10px; border-top: 2px solid #eee; padding-top: 10px;">
                     <span>Total</span>
                     <span id="checkTotal">RM 0.00</span>
                 </div>
@@ -141,19 +122,19 @@ $userName = $_SESSION['fullName'];
         <div class="receipt-card">
             <div class="receipt-header">✔ Transaction Successful</div>
             <p style="margin-bottom:20px;">Thank you for your purchase!</p>
-            
             <div class="receipt-details">
                 <div class="receipt-line"><span>Order ID:</span> <strong id="receiptID"></strong></div>
                 <div class="receipt-line"><span>Date:</span> <span id="receiptDate"></span></div>
-                <div class="receipt-line"><span>Customer:</span> <span><?php echo htmlspecialchars($userName); ?></span></div>
-                <div class="receipt-line"><span>Payment:</span> <span id="receiptPayment">Bank Transfer</span></div>
+                <div class="receipt-line"><span>Customer:</span> <span id="resName"></span></div>
+                <div class="receipt-line"><span>Phone:</span> <span id="resPhone"></span></div>
+                <div class="receipt-line"><span>Payment:</span> <span id="receiptPayment"></span></div>
                 <div id="receiptItemsList" style="margin-top:15px; border-top: 1px solid #eee; padding-top:10px;"></div>
                 <div class="receipt-line" style="border:none; font-weight:bold; color:#7742cc; font-size:18px; margin-top:10px;">
                     <span>Total Paid:</span> <span id="receiptTotal"></span>
                 </div>
             </div>
-
-            <button class="login-btn" onclick="finishOrder()" style="width:100%;">Return to Home</button>
+            <button class="print-btn" onclick="window.print()" style="width:100%; background:#6c757d; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:600;">Print Receipt</button>
+            <button class="login-btn" onclick="finishOrder()" style="width:100%; margin-top:10px;">Return to Home</button>
         </div>
     </div>
 
@@ -173,38 +154,39 @@ $userName = $_SESSION['fullName'];
             let subtotal = 0;
             const container = document.getElementById('checkoutItems');
             container.innerHTML = cart.map(item => {
-                subtotal += (item.price * item.quantity);
+                const itemTotal = (item.price * item.quantity);
+                subtotal += itemTotal;
                 return `<div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
                             <span>${item.name} (x${item.quantity})</span>
-                            <span>RM ${(item.price * item.quantity).toFixed(2)}</span>
+                            <span>RM ${itemTotal.toFixed(2)}</span>
                         </div>`;
             }).join('');
+            
+            document.getElementById('checkSubtotal').innerText = `RM ${subtotal.toFixed(2)}`;
             document.getElementById('checkTotal').innerText = `RM ${subtotal.toFixed(2)}`;
         }
 
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Generate Receipt Data
             const orderID = "UMH-" + Math.floor(Math.random() * 900000 + 100000);
             const now = new Date();
             const dateStr = now.toLocaleDateString() + " " + now.toLocaleTimeString();
             
-            // Fill Receipt
+            // Populate Receipt
             document.getElementById('receiptID').innerText = orderID;
             document.getElementById('receiptDate').innerText = dateStr;
+            document.getElementById('resName').innerText = document.getElementById('custName').value;
+            document.getElementById('resPhone').innerText = document.getElementById('custPhone').value;
             document.getElementById('receiptPayment').innerText = selectedPayment;
             document.getElementById('receiptTotal').innerText = document.getElementById('checkTotal').innerText;
-            
-            // Clone items to receipt
             document.getElementById('receiptItemsList').innerHTML = document.getElementById('checkoutItems').innerHTML;
 
-            // Show Overlay
             document.getElementById('successOverlay').style.display = 'flex';
         });
 
         function finishOrder() {
-            localStorage.removeItem('userCart'); // Clear cart persistence
+            localStorage.removeItem('userCart');
             window.location.href = 'index.php';
         }
 
