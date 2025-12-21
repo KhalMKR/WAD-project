@@ -12,14 +12,15 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniMerch Hub - Shop</title>
+    <title>UniMerch Hub - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
     <link rel="stylesheet" href="style.css">
     <style>
-        /* New style for the Add to Cart button */
+        /* Add to Cart button styling */
         .add-to-cart-btn {
             width: 100%;
-            background-color: #7742cc; /* Match brand color */
+            background-color: #7742cc;
             color: white;
             border: none;
             padding: 10px;
@@ -39,21 +40,35 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
             border-radius: 50%;
             font-size: 12px;
             margin-left: 5px;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
     <navbar>
-        <img src="assets/images/logo.png" alt="Logo" class="logo">
-        <div id="authArea">
-            <a href="cart.php" style="color: white; text-decoration: none; margin-right: 20px;">
+        <a href="index.php"><img src="assets/images/logo.png" alt="Logo" class="logo"></a>
+        <div id="authArea" class="nav-links">
+            <a href="cart.php">
                 Cart <span id="cartCount" class="cart-count-badge">0</span>
             </a>
-            
+
             <?php if ($isLoggedIn): ?>
-                <span style="color: white; margin-right: 20px;">
-                    Hi, <strong><?php echo htmlspecialchars($userName); ?></strong>
+                <span style="color: white;">
+                    Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
                 </span>
+                <?php if ($userType === 'admin'): ?>
+                    <a href="backend_8sp/index.php" class="login-btn">Admin</a>
+                <?php endif; ?>
                 <a href="logout.php" class="login-btn">Logout</a>
             <?php else: ?>
                 <a href="login.html" class="login-btn">Login/Register</a>
@@ -61,62 +76,106 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
         </div>
     </navbar>
 
-    <div class="grid">
-    <div class="product-card">
-        <div class="product-image">
-            <img src="assets/images/hoodie.png" alt="UNIMAS Hoodie" style="width:100%; height:100%; object-fit:cover;">
-        </div>
-        <div class="product-info">
-            <div class="product-name">UNIMAS Hoodie</div>
-            <div class="product-price">RM 85.00</div>
-            <button class="add-to-cart-btn" onclick="addToCart('UNIMAS Hoodie', 85.00, 'assets/images/hoodie.png')">Add to Cart</button>
-        </div>
+    <div class="container">
+        <form onsubmit="return false;">
+            <span class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search products..." onkeyup="searchProducts()">
+                <button class="search-btn"><span class="material-symbols-outlined">search</span></button>
+            </span>
+        </form>
+        
+        <div class="grid" id="productGrid">
+            </div>
     </div>
 
-    <div class="product-card">
-        <div class="product-image">
-            <img src="assets/images/lanyard.png" alt="FCSIT Lanyard" style="width:100%; height:100%; object-fit:cover;">
-        </div>
-        <div class="product-info">
-            <div class="product-name">FCSIT Lanyard</div>
-            <div class="product-price">RM 15.00</div>
-            <button class="add-to-cart-btn" onclick="addToCart('FCSIT Lanyard', 15.00, 'assets/images/lanyard.png')">Add to Cart</button>
-        </div>
-    </div>
-</div>
+<script src="data.js"></script>
 
 <script>
-    // Initialize Cart Logic
-    function addToCart(name, price, image) {
-        // Get existing cart from localStorage or start empty
-        let cart = JSON.parse(localStorage.getItem('userCart')) || [];
-        
-        // Check if item already exists
-        const existingItemIndex = cart.findIndex(item => item.name === name);
-        
-        if (existingItemIndex > -1) {
-            cart[existingItemIndex].quantity += 1;
-        } else {
-            cart.push({ name, price, image, quantity: 1 });
+    /**
+     * Renders products to the grid based on an array
+     * @param {Array} items - The product list to display
+     */
+    function renderProducts(items) {
+        const grid = document.getElementById('productGrid');
+        if (items.length === 0) {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 50px;">No products found.</p>';
+            return;
         }
-        
-        // Save back to localStorage
-        localStorage.setItem('userCart', JSON.stringify(cart));
-        
-        // Update the UI counter
-        updateCartCount();
-        
-        alert(name + " added to cart!");
+
+        grid.innerHTML = items.map(product => `
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="${product.imagePath}" alt="${product.name}" 
+                         style="width:100%; height:200px; object-fit:cover;"
+                         onerror="this.src='https://placehold.co/250x200?text=No+Image'">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">RM ${product.price.toFixed(2)}</div>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Category: ${product.category}</p>
+                    <button class="add-to-cart-btn" 
+                        onclick="addToCart(${product.productID}, '${product.name}', ${product.price}, '${product.imagePath}')">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
 
+    /**
+     * Logic to add product to LocalStorage cart
+     */
+    function addToCart(id, name, price, image) {
+        let cart = JSON.parse(localStorage.getItem('userCart')) || [];
+        
+        // Find if item already exists
+        const existingItem = cart.find(item => item.id === id);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: id,
+                name: name,
+                price: price,
+                image: image,
+                quantity: 1
+            });
+        }
+
+        // Persist to local storage
+        localStorage.setItem('userCart', JSON.stringify(cart));
+        updateCartCount();
+        alert(name + " has been added to your cart!");
+    }
+
+    /**
+     * Updates the navbar cart badge count
+     */
     function updateCartCount() {
         const cart = JSON.parse(localStorage.getItem('userCart')) || [];
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         document.getElementById('cartCount').innerText = totalItems;
     }
 
-    // Run on page load
-    window.onload = updateCartCount;
+    /**
+     * Simple search functionality
+     */
+    function searchProducts() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = products.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.category.toLowerCase().includes(query)
+        );
+        renderProducts(filtered);
+    }
+
+    // Initialize page components on load
+    window.onload = () => {
+        renderProducts(products); // 'products' is defined in data.js
+        updateCartCount();
+    };
 </script>
+
 </body>
 </html>
