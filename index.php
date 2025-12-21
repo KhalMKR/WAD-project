@@ -64,15 +64,18 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
         Cart <span id="cartCount" class="cart-count-badge">0</span>
     </a>
 
-    <?php if ($isLoggedIn): ?>
-        <span style="color: white;">
-            Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
-        </span>
-        <a href="logout.php" class="login-btn">Logout</a>
-    <?php else: ?>
-        <a href="login.php" class="login-btn">Login/Register</a>
-    <?php endif; ?>
-</div>
+            <?php if ($isLoggedIn): ?>
+                <span style="color: white;">
+                    Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
+                </span>
+                <?php if ($userType === 'admin'): ?>
+                    <a href="backend_8sp/index.php" class="login-btn">Admin</a>
+                <?php endif; ?>
+                <a href="logout.php" class="login-btn">Logout</a>
+            <?php else: ?>
+                <a href="login.html" class="login-btn">Login/Register</a>
+            <?php endif; ?>
+        </div>
     </navbar>
 
     <div class="container">
