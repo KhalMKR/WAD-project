@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']);
+$userName = $isLoggedIn ? $_SESSION['fullName'] : '';
+$userType = $isLoggedIn ? $_SESSION['userType'] : '';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +21,17 @@
     <navbar>
         <img src="assets/images/logo.png" alt="Logo" class="logo">
         <div id="authArea">
-            <a href="login.html" class="login-btn">Login/Register</a>
+            <?php if ($isLoggedIn): ?>
+                <span style="color: white; margin-right: 20px;">
+                    Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
+                </span>
+                <?php if ($userType === 'admin'): ?>
+                    <a href="backend_8sp/index.php" class="login-btn" style="margin-right: 10px;">Admin Dashboard</a>
+                <?php endif; ?>
+                <a href="logout.php" class="login-btn">Logout</a>
+            <?php else: ?>
+                <a href="login.html" class="login-btn">Login/Register</a>
+            <?php endif; ?>
         </div>
     </navbar>
 
