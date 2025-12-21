@@ -15,6 +15,7 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
     <title>UniMerch Hub - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="style.css">
     <style>
         /* Add to Cart button styling */
@@ -57,23 +58,21 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
 <body>
     <navbar>
         <a href="index.php"><img src="assets/images/logo.png" alt="Logo" class="logo"></a>
-        <div id="authArea" class="nav-links">
-            <a href="cart.php">
-                Cart <span id="cartCount" class="cart-count-badge">0</span>
-            </a>
+<div id="authArea" class="nav-links">
+    <a href="cart.php" style="display: flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        Cart <span id="cartCount" class="cart-count-badge">0</span>
+    </a>
 
-            <?php if ($isLoggedIn): ?>
-                <span style="color: white;">
-                    Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
-                </span>
-                <?php if ($userType === 'admin'): ?>
-                    <a href="backend_8sp/index.php" class="login-btn">Admin</a>
-                <?php endif; ?>
-                <a href="logout.php" class="login-btn">Logout</a>
-            <?php else: ?>
-                <a href="login.html" class="login-btn">Login/Register</a>
-            <?php endif; ?>
-        </div>
+    <?php if ($isLoggedIn): ?>
+        <span style="color: white;">
+            Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
+        </span>
+        <a href="logout.php" class="login-btn">Logout</a>
+    <?php else: ?>
+        <a href="login.php" class="login-btn">Login/Register</a>
+    <?php endif; ?>
+</div>
     </navbar>
 
     <div class="container">
