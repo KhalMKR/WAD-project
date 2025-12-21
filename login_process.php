@@ -31,10 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit();
         } else {
-            $error = "Invalid email or password";
+            // POP-UP ALERT FOR WRONG PASSWORD
+            echo "<script>
+                alert('Invalid email or password. Please try again.');
+                window.location.href = 'login.html';
+            </script>";
+            exit();
         }
     } else {
-        $error = "Invalid email or password";
+        // POP-UP ALERT FOR WRONG EMAIL
+        echo "<script>
+            alert('Invalid email or password. Please try again.');
+            window.location.href = 'login.html';
+        </script>";
+        exit();
     }
     
     $stmt->close();
