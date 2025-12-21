@@ -11,7 +11,9 @@
 <body>
     <navbar>
         <img src="assets/images/logo.png" alt="Logo" class="logo">
-        <a href="login.html" class="login-btn">Login/Register</a>
+        <div id="authArea">
+            <a href="login.html" class="login-btn">Login/Register</a>
+        </div>
     </navbar>
 
     <div class="container">
@@ -73,5 +75,31 @@
             </div>
         </div>
     </div>
+
+<script src="data.js"></script>
+<script src="utils.js"></script>
+<script src="admin.js"></script>
+
+<script>
+(function(){
+  const authArea = document.getElementById('authArea');
+  const logged = localStorage.getItem('isLoggedIn') === 'true';
+  if (logged) {
+    const name = (localStorage.getItem('userName') || 'User');
+    authArea.innerHTML = `
+      <div id="userMenu" style="display:flex;align-items:center;gap:10px;">
+        <img src="assets/images/user-icon.png" alt="User" style="width:36px;height:36px;border-radius:50%;">
+        <span style="color:#fff;font-weight:600;">${name}</span>
+        <button id="logoutBtn" style="background:transparent;border:none;color:#fff;cursor:pointer;">Logout</button>
+      </div>`;
+    document.getElementById('logoutBtn').addEventListener('click', function(){
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userName');
+      location.reload();
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
