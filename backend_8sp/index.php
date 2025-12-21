@@ -6,7 +6,22 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     header('Location: ../login_process.php');
     exit();
 }
+include '../db.php'; // Path to your connection file
 
+// 1. Get Total Users
+$userCountQuery = "SELECT COUNT(*) as total FROM users";
+$userCountResult = $conn->query($userCountQuery);
+$totalUsers = $userCountResult->fetch_assoc()['total'];
+
+// 2. Get Total Revenue from Orders table
+$revenueQuery = "SELECT SUM(totalAmount) as total FROM orders";
+$revenueResult = $conn->query($revenueQuery);
+$totalRevenue = $revenueResult->fetch_assoc()['total'] ?? 0;
+
+// 3. Get Active Orders count
+$orderCountQuery = "SELECT COUNT(*) as total FROM orders";
+$orderCountResult = $conn->query($orderCountQuery);
+$totalOrders = $orderCountResult->fetch_assoc()['total'];
 ?>
 
 <!DOCTYPE html>
@@ -364,19 +379,19 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Users</h3>
-                    <div class="number">2,345</div>
+                    <div class="number"><?php echo number_format($totalUsers); ?></div>
                     <div class="change">↑ 12% from last month</div>
                 </div>
 
                 <div class="stat-card green">
                     <h3>Total Revenue</h3>
-                    <div class="number">$45,678</div>
+                    <div class="number">RM <?php echo number_format($totalRevenue, 2); ?></div>
                     <div class="change">↑ 8% from last month</div>
                 </div>
 
                 <div class="stat-card orange">
                     <h3>Active Orders</h3>
-                    <div class="number">789</div>
+                    <div class="number"><?php echo number_format($totalOrders); ?></div>
                     <div class="change">↓ 3% from last month</div>
                 </div>
 
