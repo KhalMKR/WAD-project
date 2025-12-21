@@ -4,7 +4,7 @@ const products = [
         name: "UNIMAS Hoodie", 
         price: 85.00, 
         category: "Clothing",
-        imagePath: "assets/images/hoodie.jpg",
+        imagePath: "assets/images/hoodie.png",
         stockQuantity: 50
     },
     {
@@ -12,7 +12,7 @@ const products = [
         name: "FCSIT Lanyard",
         price: 15.00,
         category: "Accessories",
-        imagePath: "assets/images/lanyard.jpg",
+        imagePath: "assets/images/lanyard.png",
         stockQuantity: 100
     }
 ];
