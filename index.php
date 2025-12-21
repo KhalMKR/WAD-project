@@ -91,18 +91,18 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
 <script src="data.js"></script>
 
 <script>
-    /**
-     * Renders products to the grid based on an array
-     * @param {Array} items - The product list to display
-     */
     function renderProducts(items) {
-        const grid = document.getElementById('productGrid');
-        if (items.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 50px;">No products found.</p>';
-            return;
-        }
+    const grid = document.getElementById('productGrid');
+    if (items.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 50px;">No products found.</p>';
+        return;
+    }
 
-        grid.innerHTML = items.map(product => `
+    grid.innerHTML = items.map(product => {
+        // Convert the string price from DB to a real number
+        const priceNum = Number(product.price); 
+        
+        return `
             <div class="product-card">
                 <div class="product-image">
                     <img src="${product.imagePath}" alt="${product.name}" 
@@ -111,16 +111,17 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
                 </div>
                 <div class="product-info">
                     <div class="product-name">${product.name}</div>
-                    <div class="product-price">RM ${product.price.toFixed(2)}</div>
+                    <div class="product-price">RM ${priceNum.toFixed(2)}</div>
                     <p style="font-size: 12px; color: #666; margin-top: 5px;">Category: ${product.category}</p>
                     <button class="add-to-cart-btn" 
-                        onclick="addToCart(${product.productID}, '${product.name}', ${product.price}, '${product.imagePath}')">
+                        onclick="addToCart(${product.productID}, '${product.name}', ${priceNum}, '${product.imagePath}')">
                         Add to Cart
                     </button>
                 </div>
             </div>
-        `).join('');
-    }
+        `;
+    }).join('');
+}
 
     /**
      * Logic to add product to LocalStorage cart
@@ -158,23 +159,37 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
         document.getElementById('cartCount').innerText = totalItems;
     }
 
-    /**
-     * Simple search functionality
-     */
     function searchProducts() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = products.filter(p => 
-            p.name.toLowerCase().includes(query) || 
-            p.category.toLowerCase().includes(query)
-        );
-        renderProducts(filtered);
-    }
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    // Ensure window.products exists before filtering
+    if (!window.products) return; 
 
-    // Initialize page components on load
-    window.onload = () => {
-        renderProducts(products); // 'products' is defined in data.js
+    const filtered = window.products.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.category.toLowerCase().includes(query)
+    );
+    renderProducts(filtered);
+}
+
+    // Chung's Database-Ready Initialization
+window.onload = async () => {
+    try {
+        // 1. Fetch the real data from your XAMPP products table
+        const response = await fetch('fetch_products.php');
+        const dbProducts = await response.json();
+        
+        // 2. Save it to a global variable so searchProducts() still works
+        window.products = dbProducts; 
+        
+        // 3. Show them on the screen
+        renderProducts(window.products); 
         updateCartCount();
-    };
+    } catch (error) {
+        console.error("Database connection failed:", error);
+        // If database fails, show empty grid
+        renderProducts([]); 
+    }
+};
 </script>
 
 </body>
