@@ -130,16 +130,25 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
         }
 
         function proceedToCheckout() {
-            const loggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
-            if (!loggedIn) {
-                alert("Please login to proceed with checkout.");
-                window.location.href = 'login.html';
-                return;
-            }
-            alert("Order placed successfully!");
-            localStorage.removeItem('userCart'); // Clear cart after "purchase"
-            window.location.href = 'index.php';
-        }
+    // Check if user is logged in via PHP variable converted to JS
+    const loggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
+    
+    if (!loggedIn) {
+        alert("Please login to proceed with checkout.");
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Check if the cart is empty before allowing checkout
+    const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    // Redirect to the actual checkout page instead of index.php
+    window.location.href = 'checkout.php';
+}
 
         // Initialize page
         window.onload = loadCart;
