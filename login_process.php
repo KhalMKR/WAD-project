@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     // Query database for user
-    $stmt = $conn->prepare("SELECT fullName, email, password, userType FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT userID, fullName, email, password, userType FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Verify password using password_verify (secure hashing)
         if (password_verify($password, $user['password'])) {
+            $_SESSION['userID'] = $user['userID'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['fullName'] = $user['fullName'];
             $_SESSION['userType'] = $user['userType'];

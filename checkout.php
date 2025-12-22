@@ -1,11 +1,13 @@
 <?php
 session_start();
 // Security: Redirect to login if not authenticated
-if (!isset($_SESSION['email'])) {
+if (!isset($_SESSION['email']) || !isset($_SESSION['userID'])) {
     header("Location: login.html");
     exit();
 }
 $userName = $_SESSION['fullName'];
+$userID = $_SESSION['userID'];
+$userEmail = $_SESSION['email'];
 ?>
 
 <!DOCTYPE html>

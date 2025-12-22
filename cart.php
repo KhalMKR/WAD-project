@@ -1,9 +1,10 @@
 <?php
 session_start();
 // Check if user is logged in
-$isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']);
+$isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']) && isset($_SESSION['userID']);
 $userName = $isLoggedIn ? $_SESSION['fullName'] : '';
 $userType = $isLoggedIn ? $_SESSION['userType'] : '';
+$userID = $isLoggedIn ? $_SESSION['userID'] : '';
 ?>
 
 <!DOCTYPE html>

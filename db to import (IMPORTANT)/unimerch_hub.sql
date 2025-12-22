@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 21, 2025 at 05:20 PM
+-- Generation Time: Dec 22, 2025 at 07:47 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `orders` (
   `orderID` int(11) NOT NULL,
-  `userEmail` varchar(100) NOT NULL,
+  `userID` int(11) NOT NULL,
   `totalAmount` decimal(10,2) NOT NULL,
   `orderDate` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -66,6 +66,7 @@ INSERT INTO `products` (`productID`, `name`, `price`, `category`, `imagePath`, `
 --
 
 CREATE TABLE `users` (
+  `userID` int(11) NOT NULL,
   `fullName` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(225) NOT NULL,
@@ -76,12 +77,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`fullName`, `email`, `password`, `userType`) VALUES
-('fgdg', 'cchunglik@gmail.com', 'dsfds', 'Registered Member'),
-('fgdg', 'cchunglik@gmail.com', 'dsfds', 'Registered Member'),
-('chung', 'cchunglik@gmail.com', '123', 'Registered Member'),
-('chung', 'legendbolt@gmail.com', '123', 'Registered Member'),
-('chung', 'beckykaiser2@gmail.com', '$2y$10$pK2FdJufifnmQoE9y2fu2Oy/tueC0pq9vwqkVlPmHBTGjRT6Vx79W', 'user');
+INSERT INTO `users` (`userID`, `fullName`, `email`, `password`, `userType`) VALUES
+(1, 'Admin', 'admin@unimhub.com', '$2y$10$FUG2SXSlNiggezw6AaTScOtMnItMWC4sNNPg0GiXGc1WM33nBd.7q', 'admin'),
+(2, 'chung', 'chian@mail.com', '$2y$10$Cm47nj4Ah76UOJ1YWbau1u0ySPjVBIv6dGqYSwR.0nkzT0MYfEvEK', 'user'),
+(3, 'khal', 'khal@mail.com', '$2y$10$E0h9ul.hQLtz2fh/3qzI6e3bFj/bsLbbnRpXwUHaF6PoO5v3AT3uq', 'user');
 
 --
 -- Indexes for dumped tables
@@ -91,29 +90,33 @@ INSERT INTO `users` (`fullName`, `email`, `password`, `userType`) VALUES
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`orderID`);
+  ADD KEY `userID` (`userID`);
 
 --
--- Indexes for table `products`
+-- Indexes for table `users`
 --
-ALTER TABLE `products`
-  ADD PRIMARY KEY (`productID`);
+ALTER TABLE `users`
+  ADD UNIQUE KEY `userID` (`userID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `orders`
+-- AUTO_INCREMENT for table `users`
 --
-ALTER TABLE `orders`
-  MODIFY `orderID` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `users`
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `products`
+-- Constraints for dumped tables
 --
-ALTER TABLE `products`
-  MODIFY `productID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

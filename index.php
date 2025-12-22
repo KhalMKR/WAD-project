@@ -2,9 +2,10 @@
 session_start();
 
 // Check if user is logged in
-$isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']);
+$isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']) && isset($_SESSION['userID']);
 $userName = $isLoggedIn ? $_SESSION['fullName'] : '';
 $userType = $isLoggedIn ? $_SESSION['userType'] : '';
+$userID = $isLoggedIn ? $_SESSION['userID'] : '';
 ?>
 
 <!DOCTYPE html>
@@ -65,9 +66,9 @@ $userType = $isLoggedIn ? $_SESSION['userType'] : '';
     </a>
 
             <?php if ($isLoggedIn): ?>
-                <span style="color: white;">
+                <a href="profile.php"><span style="color: white;">
                     Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
-                </span>
+                </span></a>
                 <?php if ($userType === 'admin'): ?>
                     <a href="backend_8sp/index.php" class="login-btn">Admin</a>
                 <?php endif; ?>
