@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Redirect admin users back to admin dashboard
+if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
+    header('Location: ./backend_8sp/index.php');
+    exit();
+}
+
 // Security: Redirect to login if not authenticated
 if (!isset($_SESSION['email']) || !isset($_SESSION['userID'])) {
     header("Location: login.html");

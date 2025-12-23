@@ -16,8 +16,19 @@ if (ini_get("session.use_cookies")) {
 
 // Destroy the session
 session_destroy();
-
-// Redirect to login page
-header("Location: login.html");
-exit;
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logging out...</title>
+</head>
+<body>
+    <script>
+        // Clear the cart from localStorage
+        localStorage.removeItem('userCart');
+        // Redirect to login page
+        window.location.href = 'login.html';
+    </script>
+</body>
+</html>
