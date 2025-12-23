@@ -41,16 +41,13 @@ function updateCartCount() {
  * This will be populated later with actual order data from the backend
  */
 function loadOrders() {
-    // TODO: Fetch orders from database and display them
-    /*
-    const userID = document.body.getAttribute('data-userid');
-    if (!userID) return;
-    
-    fetch(`fetch_orders.php?userID=${userID}`)
+    // Fetch orders from server (session-based). Returns JSON array.
+    fetch('fetch_orders.php', { credentials: 'same-origin' })
         .then(res => res.json())
         .then(orders => displayOrders(orders))
-        .catch(error => console.error('Error loading orders:', error));
-    */
+        .catch(error => {
+            console.error('Error loading orders:', error);
+        });
 }
 
 /**
@@ -80,6 +77,7 @@ function displayOrders(orders) {
                 <div class="transaction-date">${new Date(order.orderDate).toLocaleDateString()}</div>
             </div>
             <div class="transaction-amount">RM ${parseFloat(order.totalAmount).toFixed(2)}</div>
+            <div style="margin-left:12px;"><a href="orderdetails.php?order=${encodeURIComponent(order.orderID)}">View details</a></div>
         </div>
     `).join('');
 }

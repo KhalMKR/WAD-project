@@ -66,6 +66,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
     </a>
 
             <?php if ($isLoggedIn): ?>
+                <a href="orderhistory.php">Orders</a>
                 <a href="profile.php"><span style="color: white;">
                     Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong>
                 </span></a>
@@ -105,15 +106,17 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
         // Convert the string price from DB to a real number
         const priceNum = Number(product.price); 
         
-        return `
+                return `
             <div class="product-card">
                 <div class="product-image">
+                    <a href="product.php?id=${product.productID}">
                     <img src="${product.imagePath}" alt="${product.name}" 
                          style="width:100%; height:200px; object-fit:cover;"
                          onerror="this.src='https://placehold.co/250x200?text=No+Image'">
+                    </a>
                 </div>
                 <div class="product-info">
-                    <div class="product-name">${product.name}</div>
+                    <div class="product-name"><a href="product.php?id=${product.productID}" style="color:inherit; text-decoration:none;">${product.name}</a></div>
                     <div class="product-price">RM ${priceNum.toFixed(2)}</div>
                     <p style="font-size: 12px; color: #666; margin-top: 5px;">Category: ${product.category}</p>
                     <button class="add-to-cart-btn" 

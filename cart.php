@@ -40,6 +40,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
         <a href="index.php"><img src="assets/images/logo.png" alt="Logo" class="logo"></a>
         <div id="authArea">
             <?php if ($isLoggedIn): ?>
+                <a href="orderhistory.php" style="margin-right:12px; color: white;">Orders</a>
                 <span style="color: white; margin-right: 15px;">Welcome, <strong><?php echo htmlspecialchars($userName); ?></strong></span>
                 <a href="logout.php" class="login-btn">Logout</a>
             <?php else: ?>

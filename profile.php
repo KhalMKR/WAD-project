@@ -190,11 +190,14 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
             <a href="logout.php" class="login-btn">Logout</a>
         </div>
     </navbar>
-
-    <div class="container">
-        <div class="profile-layout">
-            <!-- Profile Information Card -->
-            <div class="profile-card">
+    <navbar>
+        <a href="profile.php"><span style="color: white;">
+            My Profile
+        </span></a>
+        <a href="orderhistory.php" style="margin-left:12px; color: white;">Orders</a>
+    </navbar>
+    <div class="profile-layout">
+        <div class="profile-card">
                 <div class="profile-header">
                     <div class="profile-avatar"><?php echo strtoupper(substr($fullName, 0, 1)); ?></div>
                     <div class="profile-title">

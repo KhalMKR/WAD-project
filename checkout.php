@@ -68,6 +68,7 @@ $userEmail = $_SESSION['email'];
     <navbar>
         <a href="index.php"><img src="assets/images/logo.png" alt="Logo" class="logo"></a>
         <span style="color: white;">Secure Checkout</span>
+        <a href="orderhistory.php" style="margin-left:16px; color: white;">Orders</a>
     </navbar>
 
     <div class="container">
@@ -171,25 +172,53 @@ $userEmail = $_SESSION['email'];
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const orderID = "UMH-" + Math.floor(Math.random() * 900000 + 100000);
-            const now = new Date();
-            const dateStr = now.toLocaleDateString() + " " + now.toLocaleTimeString();
-            
-            // Populate Receipt
-            document.getElementById('receiptID').innerText = orderID;
-            document.getElementById('receiptDate').innerText = dateStr;
-            document.getElementById('resName').innerText = document.getElementById('custName').value;
-            document.getElementById('resPhone').innerText = document.getElementById('custPhone').value;
-            document.getElementById('receiptPayment').innerText = selectedPayment;
-            document.getElementById('receiptTotal').innerText = document.getElementById('checkTotal').innerText;
-            document.getElementById('receiptItemsList').innerHTML = document.getElementById('checkoutItems').innerHTML;
+                // Send order to backend including customer info and cart items
+                const totalText = document.getElementById('checkTotal').innerText || 'RM 0.00';
+                const totalAmount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0.00;
+                const payload = new FormData();
+                payload.append('totalAmount', totalAmount);
+                payload.append('fullName', document.getElementById('custName').value);
+                payload.append('phone', document.getElementById('custPhone').value);
+                payload.append('address', document.getElementById('custAddress').value);
+                payload.append('paymentMethod', selectedPayment);
 
-            document.getElementById('successOverlay').style.display = 'flex';
+                const items = JSON.parse(localStorage.getItem('userCart') || '[]');
+                payload.append('items', JSON.stringify(items));
+
+                fetch('checkout_process.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: payload
+                }).then(r => r.json())
+                .then(response => {
+                    if (response.success) {
+                        const orderID = response.orderID;
+                        const now = new Date();
+                        const dateStr = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+
+                        // Populate Receipt
+                        document.getElementById('receiptID').innerText = orderID;
+                        document.getElementById('receiptDate').innerText = dateStr;
+                        document.getElementById('resName').innerText = document.getElementById('custName').value;
+                        document.getElementById('resPhone').innerText = document.getElementById('custPhone').value;
+                        document.getElementById('receiptPayment').innerText = selectedPayment;
+                        document.getElementById('receiptTotal').innerText = document.getElementById('checkTotal').innerText;
+                        document.getElementById('receiptItemsList').innerHTML = document.getElementById('checkoutItems').innerHTML;
+
+                        document.getElementById('successOverlay').style.display = 'flex';
+                    } else {
+                        alert('Failed to place order: ' + (response.message || 'Unknown error'));
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    alert('Error communicating with server.');
+                });
         });
 
         function finishOrder() {
             localStorage.removeItem('userCart');
-            window.location.href = 'index.php';
+            // After finishing, redirect to profile where orders are shown
+            window.location.href = 'profile.php';
         }
 
         window.onload = displaySummary;
