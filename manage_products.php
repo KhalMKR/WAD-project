@@ -5,64 +5,66 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     header('Location: login.html');
     exit();
 }
-// finer-grained role
-$isSuperAdmin = isset($_SESSION['isSuperAdmin']) && $_SESSION['isSuperAdmin'];
+// admin role flag
+$isAdmin = isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin';
 include 'db.php';
 
 $message = '';
 
-// Handle Add
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
-    $name = trim($_POST['name']);
-    $price = floatval($_POST['price']);
-    $category = trim($_POST['category']);
-    $imagePath = trim($_POST['imagePath']);
-    $stock = intval($_POST['stock']);
+// Handle POST actions (add, update)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
 
-    $stmt = $conn->prepare("INSERT INTO products (name, price, category, imagePath, stockQuantity) VALUES (?, ?, ?, ?, ?)");
-    if ($stmt) {
-        $stmt->bind_param('sdssi', $name, $price, $category, $imagePath, $stock);
-        if ($stmt->execute()) {
-            $message = 'Product added.';
+    if ($action === 'add') {
+        $name = trim($_POST['name'] ?? '');
+        $price = floatval($_POST['price'] ?? 0);
+        $category = trim($_POST['category'] ?? '');
+        $imagePath = trim($_POST['imagePath'] ?? '');
+        $stock = intval($_POST['stock'] ?? 0);
+
+        $stmt = $conn->prepare("INSERT INTO products (name, price, category, imagePath, stockQuantity) VALUES (?, ?, ?, ?, ?)");
+        if ($stmt) {
+            $stmt->bind_param('sdssi', $name, $price, $category, $imagePath, $stock);
+            if ($stmt->execute()) {
+                $message = 'Product added.';
+            } else {
+                $message = 'Add failed: ' . $stmt->error;
+            }
+            $stmt->close();
         } else {
-            $message = 'Add failed: ' . $stmt->error;
+            $message = 'Prepare failed: ' . $conn->error;
         }
-        $stmt->close();
-    } else {
-        $message = 'Prepare failed: ' . $conn->error;
-    }
-}
-
-// Handle Update (require super admin)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update' && isset($_POST['productID'])) {
-    if (!$isSuperAdmin) {
-        $message = 'Permission denied: only super admins can update products.';
-    } else {
-    $id = intval($_POST['productID']);
-    $name = trim($_POST['name']);
-    $price = floatval($_POST['price']);
-    $category = trim($_POST['category']);
-    $imagePath = trim($_POST['imagePath']);
-    $stock = intval($_POST['stock']);
-
-    $stmt = $conn->prepare("UPDATE products SET name=?, price=?, category=?, imagePath=?, stockQuantity=? WHERE productID=?");
-    if ($stmt) {
-        $stmt->bind_param('sdssii', $name, $price, $category, $imagePath, $stock, $id);
-        if ($stmt->execute()) {
-            $message = 'Product updated.';
+    } elseif ($action === 'update') {
+        if (!$isAdmin) {
+            $message = 'Permission denied: only admins can update products.';
         } else {
-            $message = 'Update failed: ' . $stmt->error;
+            $id = intval($_POST['productID'] ?? 0);
+            $name = trim($_POST['name'] ?? '');
+            $price = floatval($_POST['price'] ?? 0);
+            $category = trim($_POST['category'] ?? '');
+            $imagePath = trim($_POST['imagePath'] ?? '');
+            $stock = intval($_POST['stock'] ?? 0);
+
+            $stmt = $conn->prepare("UPDATE products SET name=?, price=?, category=?, imagePath=?, stockQuantity=? WHERE productID=?");
+            if ($stmt) {
+                $stmt->bind_param('sdssii', $name, $price, $category, $imagePath, $stock, $id);
+                if ($stmt->execute()) {
+                    $message = 'Product updated.';
+                } else {
+                    $message = 'Update failed: ' . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                $message = 'Prepare failed: ' . $conn->error;
+            }
         }
-        $stmt->close();
-    } else {
-        $message = 'Prepare failed: ' . $conn->error;
     }
 }
 
 // Handle Delete (require super admin)
 if (isset($_GET['delete'])) {
-    if (!$isSuperAdmin) {
-        $message = 'Permission denied: only super admins can delete products.';
+    if (!$isAdmin) {
+        $message = 'Permission denied: only admins can delete products.';
     } else {
         $delid = intval($_GET['delete']);
         $stmt = $conn->prepare("DELETE FROM products WHERE productID = ?");
@@ -142,12 +144,12 @@ if ($res) {
                 <td><img src="<?php echo htmlspecialchars($p['imagePath']); ?>" alt="" style="height:40px;object-fit:cover" onerror="this.src='https://placehold.co/80x40?text=No+Image'"></td>
                 <td><?php echo (int)$p['stockQuantity']; ?></td>
                 <td>
-                    <?php if ($isSuperAdmin): ?>
+                    <?php if ($isAdmin): ?>
                         <a href="manage_products.php?edit=<?php echo (int)$p['productID']; ?>">Edit</a>
                         &nbsp;|&nbsp;
                         <a href="manage_products.php?delete=<?php echo (int)$p['productID']; ?>" onclick="return confirm('Delete this product?');">Delete</a>
                     <?php else: ?>
-                        <span style="color:#666;">(Edit/Delete only for super admins)</span>
+                        <span style="color:#666;">(Edit/Delete only for admins)</span>
                     <?php endif; ?>
                 </td>
             </tr>

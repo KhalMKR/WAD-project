@@ -23,9 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email'] = $user['email'];
             $_SESSION['fullName'] = $user['fullName'];
             $_SESSION['userType'] = $user['userType'];
-            // Optional finer-grained admin level: if your users table has `adminLevel` set to 'super'
-            // this will be exposed as a boolean flag. If the column doesn't exist, this stays false.
-            $_SESSION['isSuperAdmin'] = (isset($user['adminLevel']) && $user['adminLevel'] === 'super') ? true : false;
+            // No super-admin concept: regular admin is sufficient.
             
             // Redirect based on user type
             if ($user['userType'] === 'admin') {

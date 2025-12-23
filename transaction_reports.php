@@ -5,8 +5,8 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     header('Location: login.html');
     exit();
 }
-// finer-grained
-$isSuperAdmin = isset($_SESSION['isSuperAdmin']) && $_SESSION['isSuperAdmin'];
+// admin flag
+$isAdmin = isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin';
 include 'db.php';
 
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'daily';
@@ -47,10 +47,11 @@ if ($res) {
 
     <form method="post" action="transaction_reports_pdf.php">
         <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-        <?php if ($isSuperAdmin): ?>
-            <button type="submit">Export to PDF / CSV</button>
+        <?php if ($isAdmin): ?>
+            <button type="submit" name="format" value="pdf">Export PDF</button>
+            <button type="submit" name="format" value="csv">Export CSV</button>
         <?php else: ?>
-            <button type="button" disabled title="Only super admins may export reports">Export (super admin only)</button>
+            <button type="button" disabled title="Only admins may export reports">Export (admin only)</button>
         <?php endif; ?>
     </form>
 

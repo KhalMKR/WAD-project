@@ -5,7 +5,8 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     header('Location: ../login.html');
     exit();
 }
-$isSuperAdmin = isset($_SESSION['isSuperAdmin']) && $_SESSION['isSuperAdmin'];
+// admin flag (no separate super-admin)
+$isAdmin = isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin';
 include '../db.php';
 
 $message = '';
@@ -15,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $target = intval($_POST['userID']);
     $newRole = $_POST['role'] === 'admin' ? 'admin' : 'user';
 
-    // Prevent non-superadmins from making someone admin
-    if ($newRole === 'admin' && !$isSuperAdmin) {
-        $message = 'Permission denied: only super admins can grant admin role.';
+    // Only admins can change roles (this page already requires admin access)
+    if ($newRole === 'admin' && !$isAdmin) {
+        $message = 'Permission denied: only admins can grant admin role.';
     } else {
         $stmt = $conn->prepare("UPDATE users SET userType = ? WHERE userID = ?");
         if ($stmt) {
@@ -45,8 +46,9 @@ if (isset($_GET['delete'])) {
         $row = $res->fetch_assoc();
         $q->close();
         $targetRole = $row['userType'] ?? 'user';
-        if ($targetRole === 'admin' && !$isSuperAdmin) {
-            $message = 'Permission denied: only super admins can delete admin accounts.';
+        // allow admins to delete other accounts (except self)
+        if ($targetRole === 'admin' && !$isAdmin) {
+            $message = 'Permission denied: only admins can delete admin accounts.';
         } else {
             $stmt = $conn->prepare("DELETE FROM users WHERE userID = ?");
             if ($stmt) {
