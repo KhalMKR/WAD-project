@@ -87,6 +87,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // Clear the user's cart from database
+        $clearCart = $conn->prepare("DELETE FROM cart WHERE userID = ?");
+        if ($clearCart) {
+            $clearCart->bind_param('i', $userID);
+            $clearCart->execute();
+            $clearCart->close();
+        }
+
         echo json_encode(['success' => true, 'orderID' => $nextId]);
     } else {
         echo json_encode(['success' => false, 'message' => $conn->error]);

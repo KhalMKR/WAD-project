@@ -23,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email'] = $user['email'];
             $_SESSION['fullName'] = $user['fullName'];
             $_SESSION['userType'] = $user['userType'];
-            // No super-admin concept: regular admin is sufficient.
             
             // Redirect based on user type
             if ($user['userType'] === 'admin') {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 23, 2025 at 02:14 AM
+-- Generation Time: Dec 23, 2025 at 05:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,20 @@ SET time_zone = "+00:00";
 --
 -- Database: `unimerch_hub`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `cartItemID` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
+  `productID` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `dateAdded` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -128,6 +142,14 @@ INSERT INTO `users` (`userID`, `fullName`, `email`, `password`, `userType`) VALU
 --
 
 --
+-- Indexes for table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`cartItemID`),
+  ADD UNIQUE KEY `unique_user_product` (`userID`,`productID`),
+  ADD KEY `productID` (`productID`);
+
+--
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
@@ -141,6 +163,12 @@ ALTER TABLE `order_items`
   ADD KEY `orderID` (`orderID`);
 
 --
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`productID`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -149,6 +177,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `cartItemID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_items`
@@ -165,6 +199,13 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`productID`) REFERENCES `products` (`productID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `orders`

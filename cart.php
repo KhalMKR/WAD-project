@@ -82,7 +82,10 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
     </div>
 
     <script>
+        const isLoggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
+
         function loadCart() {
+            // All users use localStorage
             const cart = JSON.parse(localStorage.getItem('userCart')) || [];
             const cartList = document.getElementById('cartList');
             const header = '<div class="cart-header">Shopping Cart</div>';
@@ -140,25 +143,20 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
         }
 
         function proceedToCheckout() {
-    // Check if user is logged in via PHP variable converted to JS
-    const loggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
-    
-    if (!loggedIn) {
-        alert("Please login to proceed with checkout.");
-        window.location.href = 'login.html';
-        return;
-    }
+            if (!isLoggedIn) {
+                alert("Please login to proceed with checkout.");
+                window.location.href = 'login.html';
+                return;
+            }
 
-    // Check if the cart is empty before allowing checkout
-    const cart = JSON.parse(localStorage.getItem('userCart')) || [];
-    if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-    }
+            const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
 
-    // Redirect to the actual checkout page instead of index.php
-    window.location.href = 'checkout.php';
-}
+            window.location.href = 'checkout.php';
+        }
 
         // Initialize page
         window.onload = loadCart;

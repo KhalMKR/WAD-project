@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'db.php';
 
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
@@ -15,6 +16,30 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['userID'])) {
 $userName = $_SESSION['fullName'];
 $userID = $_SESSION['userID'];
 $userEmail = $_SESSION['email'];
+
+// Get cart items from database
+$cartQuery = $conn->prepare("
+    SELECT c.productID, c.quantity, p.name, p.price, p.imagePath 
+    FROM cart c 
+    JOIN products p ON c.productID = p.productID 
+    WHERE c.userID = ?
+");
+$cartQuery->bind_param('i', $userID);
+$cartQuery->execute();
+$cartResult = $cartQuery->get_result();
+
+$cartItems = [];
+$totalAmount = 0;
+while ($row = $cartResult->fetch_assoc()) {
+    $cartItems[] = $row;
+    $totalAmount += $row['price'] * $row['quantity'];
+}
+
+// If cart is empty, redirect back
+if (empty($cartItems)) {
+    header("Location: cart.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>

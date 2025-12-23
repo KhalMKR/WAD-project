@@ -2,6 +2,9 @@
 session_start();
 include 'db.php';
 
+// Debug: Check session
+error_log("Product page session data: " . json_encode($_SESSION));
+
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id <= 0) {
     header('Location: index.php');
@@ -75,24 +78,30 @@ $product = $res->fetch_assoc();
 
     <script>
         function addToCart(){
-            const id = <?php echo (int)$product['productID']; ?>;
-            const name = <?php echo json_encode($product['name']); ?>;
+            const productID = <?php echo (int)$product['productID']; ?>;
+            const productName = <?php echo json_encode($product['name']); ?>;
             const price = <?php echo (float)$product['price']; ?>;
             const image = <?php echo json_encode($product['imagePath']); ?>;
-            const qty = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
+            const quantity = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
 
+            // Use localStorage for cart (same for all users)
             let cart = JSON.parse(localStorage.getItem('userCart') || '[]');
-            const existing = cart.find(i => i.id === id);
+            const existing = cart.find(i => i.id === productID);
+            
             if (existing) {
-                existing.quantity = existing.quantity + qty;
+                existing.quantity += quantity;
             } else {
-                cart.push({ id: id, name: name, price: price, image: image, quantity: qty });
+                cart.push({ id: productID, name: productName, price: price, image: image, quantity: quantity });
             }
+            
             localStorage.setItem('userCart', JSON.stringify(cart));
-            alert(name + ' added to cart');
-            // update cart count badge if present
-            const badge = document.getElementById('cartCount');
-            if (badge) badge.innerText = cart.reduce((s,i)=>s+i.quantity,0);
+            alert(productName + ' added to cart!');
+            
+            // Update cart count if it exists
+            const cartBadge = document.getElementById('cartCount');
+            if (cartBadge) {
+                cartBadge.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+            }
         }
     </script>
 </body>
