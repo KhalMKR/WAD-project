@@ -87,6 +87,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // ---------------------------------------------------------
+        // SEND EMAIL NOTIFICATION
+        // ---------------------------------------------------------
+        $to = $email; 
+        $subject = "Order Confirmation - Order #" . $nextId;
+        
+        $message = "Dear " . ($custName ?: "Customer") . ",\n\n";
+        $message .= "Thank you for shopping with UniMerch Hub! Your order has been placed successfully.\n\n";
+        $message .= "Order Details:\n";
+        $message .= "--------------------------------\n";
+        $message .= "Order ID: " . $nextId . "\n";
+        $message .= "Total Amount: RM " . number_format($total, 2) . "\n";
+        $message .= "Payment Method: " . $paymentMethod . "\n";
+        $message .= "--------------------------------\n\n";
+        $message .= "We will process your order shortly.\n\n";
+        $message .= "Best Regards,\nUniMerch Hub Team";
+
+        // Headers
+        $headers = "From: no-reply@unimerchhub.com\r\n";
+        $headers .= "Reply-To: support@unimerchhub.com\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion();
+
+        // Send the email (suppress errors with @ to prevent breaking JSON response)
+        @mail($to, $subject, $message, $headers);
+        // ---------------------------------------------------------
+
         // Clear the user's cart from database
         $clearCart = $conn->prepare("DELETE FROM cart WHERE userID = ?");
         if ($clearCart) {

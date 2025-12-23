@@ -1,5 +1,38 @@
 <?php
 session_start();
+include 'db.php'; // Include DB connection
+
+// --- NEW: Handle AJAX Request to Sync Cart to Database ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['userID'])) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (isset($input['action']) && $input['action'] === 'sync_cart' && isset($input['cart'])) {
+        $userID = $_SESSION['userID'];
+        
+        // 1. Clear current database cart for this user (to replace with new data)
+        $clearStmt = $conn->prepare("DELETE FROM cart WHERE userID = ?");
+        $clearStmt->bind_param("i", $userID);
+        $clearStmt->execute();
+        $clearStmt->close();
+
+        // 2. Insert items from LocalStorage into Database
+        $insertStmt = $conn->prepare("INSERT INTO cart (userID, productID, quantity) VALUES (?, ?, ?)");
+        foreach ($input['cart'] as $item) {
+            $pid = isset($item['id']) ? intval($item['id']) : 0;
+            $qty = isset($item['quantity']) ? intval($item['quantity']) : 1;
+            
+            if ($pid > 0 && $qty > 0) {
+                $insertStmt->bind_param("iii", $userID, $pid, $qty);
+                $insertStmt->execute();
+            }
+        }
+        $insertStmt->close();
+
+        echo json_encode(['success' => true]);
+        exit; // Stop script execution here for AJAX requests
+    }
+}
+// ---------------------------------------------------------
 
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
@@ -155,7 +188,26 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
                 return;
             }
 
-            window.location.href = 'checkout.php';
+            // --- CHANGED: Sync localStorage to Database before redirecting ---
+            fetch('cart.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'sync_cart', cart: cart })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Once database is updated, we can safely go to checkout.php
+                    window.location.href = 'checkout.php';
+                } else {
+                    alert("Error preparing checkout. Please try again.");
+                    console.error('Server response:', data);
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                alert("Could not connect to server. Please check your connection.");
+            });
         }
 
         // Initialize page
