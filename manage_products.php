@@ -172,7 +172,7 @@ if ($res) {
 
             <h2>Products List</h2>
             <table>
-        <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Image</th><th>Stock</th><th>Actions</th></tr></thead>
+        <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Image</th><th>Stock</th></tr></thead>
         <tbody>
         <?php foreach ($products as $p): ?>
             <tr>
@@ -182,15 +182,6 @@ if ($res) {
                 <td><?php echo htmlspecialchars($p['category']); ?></td>
                 <td><img src="<?php echo htmlspecialchars($p['imagePath']); ?>" alt="" style="height:40px;object-fit:cover" onerror="this.src='https://placehold.co/80x40?text=No+Image'"></td>
                 <td><?php echo (int)$p['stockQuantity']; ?></td>
-                <td>
-                    <?php if ($isAdmin): ?>
-                        <a href="manage_products.php?edit=<?php echo (int)$p['productID']; ?>">Edit</a>
-                        &nbsp;|&nbsp;
-                        <a href="manage_products.php?delete=<?php echo (int)$p['productID']; ?>" onclick="return confirm('Delete this product?');">Delete</a>
-                    <?php else: ?>
-                        <span style="color:#666;">(Edit/Delete only for admins)</span>
-                    <?php endif; ?>
-                </td>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -202,13 +193,13 @@ if ($res) {
     <div id="modalAdd" class="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;z-index:999">
         <div style="background:#fff;padding:20px;border-radius:8px;max-width:600px;width:100%">
             <h3>Add Product</h3>
-            <form method="post" id="formAdd">
+            <form method="post" id="formAdd" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add">
                 <div style="display:grid;gap:8px">
                     <label>Name: <input name="name" required></label>
                     <label>Price: <input name="price" type="number" step="0.01" required value="0.00"></label>
                     <label>Category: <input name="category"></label>
-                    <label>Image Path: <input name="imagePath"></label>
+                    <label>Image: <input type="file" name="imageFile" accept="image/*"></label>
                     <label>Stock: <input name="stock" type="number" value="0"></label>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
@@ -248,14 +239,15 @@ if ($res) {
 
             <div id="editFormWrap" style="margin-top:16px;display:none;border-top:1px solid #eee;padding-top:12px">
                 <h4>Edit Product</h4>
-                <form method="post" id="formEdit">
+                <form method="post" id="formEdit" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="productID" id="edit_productID">
                     <div style="display:grid;gap:8px">
                         <label>Name: <input name="name" id="edit_name" required></label>
                         <label>Price: <input name="price" id="edit_price" type="number" step="0.01" required></label>
                         <label>Category: <input name="category" id="edit_category"></label>
-                        <label>Image Path: <input name="imagePath" id="edit_imagePath"></label>
+                        <label>Current Image: <input name="imagePath" id="edit_imagePath" readonly></label>
+                        <label>Change Image: <input type="file" name="imageFile" accept="image/*"></label>
                         <label>Stock: <input name="stock" id="edit_stock" type="number"></label>
                     </div>
                     <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
