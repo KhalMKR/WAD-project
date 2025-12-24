@@ -112,13 +112,29 @@ if ($res) {
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Manage Products</title>
     <link rel="stylesheet" href="style.css">
-    <style>table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #ddd;text-align:left}form.inline{display:inline}</style>
+    <style>
+        /* Small admin-like additions to match dashboard */
+        .container{max-width:1200px;margin:30px auto;padding:20px}
+        .header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+        .btn{padding:8px 12px;border-radius:6px;text-decoration:none;display:inline-block}
+        .btn-primary{background:#3498db;color:#fff}
+        .section{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{padding:12px;border-bottom:1px solid #eef2f5;text-align:left}
+        form.inline{display:inline}
+        input,select,button{padding:8px;border-radius:6px;border:1px solid #ddd}
+    </style>
 </head>
 <body>
-    <h1>Manage Products</h1>
-    <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
+    <div class="container">
+        <div class="header">
+            <a href="backend_8sp/index.php" class="btn btn-primary">← Back to Dashboard</a>
+            <h1>Manage Products</h1>
+        </div>
+        <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
 
-    <h2><?php echo $editing ? 'Edit Product' : 'Add Product'; ?></h2>
+        <div class="section">
+            <h2><?php echo $editing ? 'Edit Product' : 'Add Product'; ?></h2>
     <form method="post">
         <input type="hidden" name="action" value="<?php echo $editing ? 'update' : 'add'; ?>">
         <?php if ($editing): ?><input type="hidden" name="productID" value="<?php echo (int)$editProduct['productID']; ?>"><?php endif; ?>
@@ -156,6 +172,8 @@ if ($res) {
         <?php endforeach; ?>
         </tbody>
     </table>
+        </div>
+    </div>
 
 </body>
 </html>

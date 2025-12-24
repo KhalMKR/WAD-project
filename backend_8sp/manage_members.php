@@ -74,13 +74,31 @@ if ($r) while ($u = $r->fetch_assoc()) $users[] = $u;
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Manage Members</title>
     <link rel="stylesheet" href="../style.css">
-    <style>table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #ddd}</style>
+    <style>
+        /* Admin-like compact styles (kept local to avoid global changes) */
+        *{box-sizing:border-box}
+        body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#f5f5f5;color:#333}
+        .container{max-width:1200px;margin:30px auto;padding:20px}
+        .header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+        .btn{padding:8px 12px;border-radius:6px;text-decoration:none;display:inline-block}
+        .btn-primary{background:#3498db;color:#fff}
+        .section{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{padding:12px;border-bottom:1px solid #eef2f5;text-align:left}
+        select,button,input{padding:8px;border-radius:6px;border:1px solid #ddd}
+        form.inline{display:inline-block;margin-right:8px}
+    </style>
 </head>
 <body>
-    <h1>Manage Members</h1>
-    <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
+    <div class="container">
+        <div class="header">
+            <a href="index.php" class="btn btn-primary">← Back to Dashboard</a>
+            <h1>Manage Members</h1>
+        </div>
+        <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
 
-    <table>
+        <div class="section">
+            <table>
         <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
         <tbody>
         <?php foreach ($users as $u): ?>
@@ -108,7 +126,9 @@ if ($r) while ($u = $r->fetch_assoc()) $users[] = $u;
             </tr>
         <?php endforeach; ?>
         </tbody>
-    </table>
+            </table>
+        </div>
+    </div>
 
 </body>
 </html>
