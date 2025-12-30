@@ -201,8 +201,22 @@ if (empty($cartItems)) {
             document.getElementById('checkTotal').innerText = `RM ${subtotal.toFixed(2)}`;
         }
 
+        let isSubmitting = false; // Flag to prevent double submission
+
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Prevent double submission
+            if (isSubmitting) {
+                return false;
+            }
+            isSubmitting = true;
+
+            // Disable the submit button
+            const submitBtn = this.querySelector('.place-order-btn');
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.innerText = 'Processing...';
             
                 // Send order to backend including customer info and cart items
                 const totalText = document.getElementById('checkTotal').innerText || 'RM 0.00';
@@ -240,10 +254,20 @@ if (empty($cartItems)) {
                         document.getElementById('successOverlay').style.display = 'flex';
                     } else {
                         alert('Failed to place order: ' + (response.message || 'Unknown error'));
+                        // Re-enable button on failure
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.innerText = 'PLACE ORDER NOW';
                     }
                 }).catch(err => {
                     console.error(err);
                     alert('Error communicating with server.');
+                    // Re-enable button on error
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.innerText = 'PLACE ORDER NOW';
                 });
         });
 

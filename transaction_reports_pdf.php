@@ -11,9 +11,19 @@ include 'db.php';
 
 // Do not use `use` here; we'll check for the namespaced class at runtime
 
+// Sanitize and validate inputs
 $filter = isset($_POST['filter']) ? $_POST['filter'] : 'daily';
+$allowed_filters = ['daily', 'monthly', 'all'];
+if (!in_array($filter, $allowed_filters)) {
+    $filter = 'daily'; // Default to safe value
+}
+
 // requested format: 'pdf' or 'csv'
 $format = isset($_POST['format']) ? strtolower(trim($_POST['format'])) : 'pdf';
+$allowed_formats = ['pdf', 'csv'];
+if (!in_array($format, $allowed_formats)) {
+    $format = 'pdf'; // Default to safe value
+}
 
 if ($filter === 'daily') {
     $sql = "SELECT orderID, userID, totalAmount, orderDate FROM orders WHERE DATE(orderDate) = CURDATE() ORDER BY orderDate DESC";

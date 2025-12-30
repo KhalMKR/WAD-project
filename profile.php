@@ -139,6 +139,15 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
             text-decoration: none;
             font-weight: 500;
         }
+        .cart-count-badge {
+            background: #ff4757;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 50%;
+            font-size: 12px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
         .transactions-section h2 {
             color: #333;
             margin-top: 0;
@@ -175,9 +184,41 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
         .empty-state p {
             margin: 10px 0;
         }
+        /* Profile Navigation Tabs */
+        .profile-nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .profile-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-nav a:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .profile-nav a.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-bottom: 3px solid white;
+        }
         @media (max-width: 768px) {
             .profile-layout {
                 grid-template-columns: 1fr;
+            }
+            .profile-nav a {
+                padding: 12px 20px;
+                font-size: 14px;
             }
         }
     </style>
@@ -188,7 +229,7 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
         <div class="nav-links">
             <a href="cart.php" style="display: flex; align-items: center; gap: 5px;">
                 <span class="material-symbols-outlined">shopping_cart</span>
-                Cart
+                Cart <span id="cartCount" class="cart-count-badge">0</span>
             </a>
             <a href="profile.php"><span style="color: white;">
                 Welcome, <strong><?php echo $fullName; ?></strong>
@@ -196,12 +237,17 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
             <a href="logout.php" class="login-btn">Logout</a>
         </div>
     </navbar>
-    <navbar>
-        <a href="profile.php"><span style="color: white;">
+    <navbar class="profile-nav">
+        <a href="profile.php" class="active">
+            <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
             My Profile
-        </span></a>
-        <a href="orderhistory.php" style="margin-left:12px; color: white;">Orders</a>
+        </a>
+        <a href="orderhistory.php">
+            <span class="material-symbols-outlined" style="font-size: 20px;">receipt_long</span>
+            Orders
+        </a>
     </navbar>
+    <div class="container">
     <div class="profile-layout">
         <div class="profile-card">
                 <div class="profile-header">
@@ -248,7 +294,13 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
             </div>
         </div>
     </div>
+    </div>
 
     <script src="data.js"></script>
+    <script src="utils.js"></script>
+    <script>
+        // Update cart count in navbar
+        updateCartCount();
+    </script>
 </body>
 </html>

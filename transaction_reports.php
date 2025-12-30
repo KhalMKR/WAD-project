@@ -9,7 +9,12 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
 $isAdmin = isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin';
 include 'db.php';
 
+// Sanitize and validate filter input
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'daily';
+$allowed_filters = ['daily', 'monthly', 'all'];
+if (!in_array($filter, $allowed_filters)) {
+    $filter = 'daily'; // Default to safe value
+}
 
 // Build query
 if ($filter === 'daily') {
