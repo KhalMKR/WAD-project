@@ -55,7 +55,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
     <title>Your Cart - UniMerch Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .cart-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 30px; }
         .cart-items { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }

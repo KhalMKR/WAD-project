@@ -31,7 +31,7 @@ $product = $res->fetch_assoc();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title><?php echo htmlspecialchars($product['name']); ?> - UniMerch Hub</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .product-page { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
         .product-image img { width:100%; border-radius:8px; max-height:480px; object-fit:cover; }
