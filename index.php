@@ -143,7 +143,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 
         if (isLoggedIn) {
             // Logged-in users: Save to database
-            fetch('add_to_cart.php', {
+            fetch('api/add_to_cart.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -221,7 +221,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 window.onload = async () => {
     try {
         // 1. Fetch the real data from your XAMPP products table
-        const response = await fetch('fetch_products.php');
+        const response = await fetch('api/fetch_products.php');
         const dbProducts = await response.json();
         
         // 2. Save it to a global variable so searchProducts() still works

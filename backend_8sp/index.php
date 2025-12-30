@@ -3,7 +3,7 @@ session_start();
 
 // Check if user is logged in as admin
 if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
-    header('Location: ../login_process.php');
+    header('Location: ../process/login_process.php');
     exit();
 }
 include '../includes/db.php'; 

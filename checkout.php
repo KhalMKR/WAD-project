@@ -231,7 +231,7 @@ if (empty($cartItems)) {
                 const items = JSON.parse(localStorage.getItem('userCart') || '[]');
                 payload.append('items', JSON.stringify(items));
 
-                fetch('checkout_process.php', {
+                fetch('process/checkout_process.php', {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: payload

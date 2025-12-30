@@ -121,7 +121,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
         function loadCart() {
             if (isLoggedIn) {
                 // Logged-in users: Load from database
-                fetch('fetch_cart.php')
+                fetch('api/fetch_cart.php')
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {

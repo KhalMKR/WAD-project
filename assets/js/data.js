@@ -27,7 +27,7 @@ function addToCart(productId) {
 
 function updateCartCount() {
     // Fetch cart count from database
-    fetch('get_cart_count.php')
+    fetch('api/get_cart_count.php')
         .then(response => response.json())
         .then(data => {
             const countElement = document.getElementById('cartCount') || 
@@ -61,7 +61,7 @@ function updateCartCount() {
  */
 function loadOrders() {
     // Fetch orders from server (session-based). Returns JSON array.
-    fetch('fetch_orders.php', { credentials: 'same-origin' })
+    fetch('api/fetch_orders.php', { credentials: 'same-origin' })
         .then(res => res.json())
         .then(orders => displayOrders(orders))
         .catch(error => {

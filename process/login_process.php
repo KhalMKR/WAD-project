@@ -1,8 +1,7 @@
 <?php
-
-include 'includes/db.php'; // Include your database connection script
-
 session_start();
+
+include '../includes/db.php'; // Include your database connection script
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
@@ -26,16 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Redirect based on user type
             if ($user['userType'] === 'admin') {
-                header('Location: backend_8sp/index.php');
+                header('Location: ../backend_8sp/index.php');
             } else {
-                header('Location: index.php');
+                header('Location: ../index.php');
             }
             exit();
         } else {
             // POP-UP ALERT FOR WRONG PASSWORD
             echo "<script>
                 alert('Invalid email or password. Please try again.');
-                window.location.href = 'login.html';
+                window.location.href = '../login.html';
             </script>";
             exit();
         }
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // POP-UP ALERT FOR WRONG EMAIL
         echo "<script>
             alert('Invalid email or password. Please try again.');
-            window.location.href = 'login.html';
+            window.location.href = '../login.html';
         </script>";
         exit();
     }

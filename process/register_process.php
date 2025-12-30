@@ -1,5 +1,5 @@
 <?php
-include 'includes/db.php'; // This uses your connection script 
+include '../includes/db.php'; // This uses your connection script 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect data from the form
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         foreach ($errors as $error) {
             echo '<p style="color: #c62828; margin: 10px 0;">❌ ' . htmlspecialchars($error) . '</p>';
         }
-        echo '<p style="margin-top: 20px;"><a href="register.html" style="color: #667eea; text-decoration: none;">← Back to Registration</a></p>';
+        echo '<p style="margin-top: 20px;"><a href="../register.html" style="color: #667eea; text-decoration: none;">← Back to Registration</a></p>';
         echo '</div></body></html>';
         exit;
     }
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Redirecting</title></head><body>
               <script>
                 alert("Registration successful! Please login with your credentials.");
-                window.location.href = "login.html";
+                window.location.href = "../login.html";
               </script>
               </body></html>';
         exit;
