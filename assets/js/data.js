@@ -26,10 +26,29 @@ function addToCart(productId) {
 }
 
 function updateCartCount() {
-    const countElement = document.querySelector('.cart-count') || document.querySelector('span[style*="background-color: red"]');
-    if (countElement) {
-        countElement.innerText = cart.length;
-    }
+    // Fetch cart count from database
+    fetch('get_cart_count.php')
+        .then(response => response.json())
+        .then(data => {
+            const countElement = document.getElementById('cartCount') || 
+                                document.querySelector('.cart-count-badge') || 
+                                document.querySelector('.cart-count');
+            
+            if (countElement) {
+                countElement.innerText = data.count;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching cart count:', error);
+            // Fallback to localStorage if fetch fails
+            const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const countElement = document.getElementById('cartCount') || 
+                                document.querySelector('.cart-count-badge');
+            if (countElement) {
+                countElement.innerText = totalItems;
+            }
+        });
 }
 
 // ========================================

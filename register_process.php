@@ -1,5 +1,5 @@
 <?php
-include 'db.php'; // This uses your connection script 
+include 'includes/db.php'; // This uses your connection script 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect data from the form

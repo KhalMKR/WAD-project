@@ -184,6 +184,34 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
         .empty-state p {
             margin: 10px 0;
         }
+        /* Action Cards */
+        .action-card {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+        }
+        .action-card:hover {
+            background: white;
+            border-color: #7742cc;
+            box-shadow: 0 2px 8px rgba(119, 66, 204, 0.1);
+            transform: translateX(5px);
+        }
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .action-icon .material-symbols-outlined {
+            font-size: 26px;
+        }
         /* Profile Navigation Tabs */
         .profile-nav {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -274,30 +302,85 @@ $userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
                     <div class="info-value"><?php echo $userID; ?></div>
                 </div>
                 <?php endif; ?>
-
-                <div class="button-group">
-                    <a href="index.php" class="btn btn-secondary">Continue Shopping</a>
-                    <a href="logout.php" class="btn btn-primary">Logout</a>
-                </div>
             </div>
 
-            <!-- Orders & Transactions Card -->
-            <div class="profile-card transactions-section">
-                <h2>Order History</h2>
-                <div id="transactionsList">
-                    <div class="empty-state">
-                        <p style="font-size: 14px;">📦</p>
-                        <p>No orders yet</p>
-                        <p style="font-size: 12px;">Your past orders and transactions will appear here.</p>
-                    </div>
+            <!-- Quick Actions Card -->
+            <div class="profile-card">
+                <h2 style="color: #333; margin-top: 0; margin-bottom: 20px;">Quick Actions</h2>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <a href="orderhistory.php" class="action-card">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="action-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <span class="material-symbols-outlined">receipt_long</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">View Orders</div>
+                                <div style="font-size: 13px; color: #666;">Track your purchase history</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: #ccc;">chevron_right</span>
+                        </div>
+                    </a>
+
+                    <a href="cart.php" class="action-card">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="action-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <span class="material-symbols-outlined">shopping_cart</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">Shopping Cart</div>
+                                <div style="font-size: 13px; color: #666;">View and manage your cart</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: #ccc;">chevron_right</span>
+                        </div>
+                    </a>
+
+                    <a href="support.php" class="action-card">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="action-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <span class="material-symbols-outlined">support_agent</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">Contact Support</div>
+                                <div style="font-size: 13px; color: #666;">Get help with your orders</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: #ccc;">chevron_right</span>
+                        </div>
+                    </a>
+
+                    <a href="index.php" class="action-card">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="action-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <span class="material-symbols-outlined">storefront</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">Continue Shopping</div>
+                                <div style="font-size: 13px; color: #666;">Browse products and shop</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: #ccc;">chevron_right</span>
+                        </div>
+                    </a>
+
+                    <a href="logout.php" class="action-card">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="action-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                <span class="material-symbols-outlined">logout</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">Logout</div>
+                                <div style="font-size: 13px; color: #666;">Sign out of your account</div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: #ccc;">chevron_right</span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
     </div>
 
-    <script src="data.js"></script>
-    <script src="utils.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/utils.js"></script>
     <script>
         // Update cart count in navbar
         updateCartCount();

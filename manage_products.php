@@ -7,7 +7,7 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
 }
 // admin role flag
 $isAdmin = isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin';
-include 'db.php';
+include 'includes/db.php';
 
 $message = '';
 

@@ -98,7 +98,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
             </div>
     </div>
 
-<script src="data.js"></script>
+<script src="assets/js/data.js"></script>
 
 <script>
     function renderProducts(items) {
@@ -136,9 +136,45 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 }
 
     /**
-     * Logic to add product to LocalStorage cart
+     * Logic to add product to cart (Database for logged-in, localStorage for guests)
      */
     function addToCart(id, name, price, image) {
+        const isLoggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
+
+        if (isLoggedIn) {
+            // Logged-in users: Save to database
+            fetch('add_to_cart.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productID: id,
+                    quantity: 1
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Also update localStorage for consistency
+                    addToLocalStorage(id, name, price, image);
+                    updateCartCount();
+                    alert(name + " has been added to your cart!");
+                } else {
+                    alert('Failed to add to cart: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error adding to cart:', err);
+                alert('Error connecting to server');
+            });
+        } else {
+            // Guest users: Use localStorage only
+            addToLocalStorage(id, name, price, image);
+            updateCartCount();
+            alert(name + " has been added to your cart!");
+        }
+    }
+
+    function addToLocalStorage(id, name, price, image) {
         let cart = JSON.parse(localStorage.getItem('userCart')) || [];
         
         // Find if item already exists
@@ -158,8 +194,6 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 
         // Persist to local storage
         localStorage.setItem('userCart', JSON.stringify(cart));
-        updateCartCount();
-        alert(name + " has been added to your cart!");
     }
 
     /**

@@ -6,7 +6,7 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     header('Location: ../login_process.php');
     exit();
 }
-include '../db.php'; 
+include '../includes/db.php'; 
 
 // 1. Get Total Users
 $userCountQuery = "SELECT COUNT(*) as total FROM users";

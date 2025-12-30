@@ -7,7 +7,7 @@ if (!isset($_SESSION['userType']) || $_SESSION['userType'] !== 'admin') {
     exit();
 }
 
-include 'db.php';
+include 'includes/db.php';
 
 // Do not use `use` here; we'll check for the namespaced class at runtime
 

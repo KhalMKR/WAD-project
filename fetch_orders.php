@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
 header('Content-Type: application/json');
 

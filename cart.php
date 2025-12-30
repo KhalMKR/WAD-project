@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php'; // Include DB connection
+include 'includes/db.php'; // Include DB connection
 
 // --- NEW: Handle AJAX Request to Sync Cart to Database ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['userID'])) {
@@ -116,10 +116,40 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 
     <script>
         const isLoggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
+        let cartData = []; // Store cart globally
 
         function loadCart() {
-            // All users use localStorage
-            const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+            if (isLoggedIn) {
+                // Logged-in users: Load from database
+                fetch('fetch_cart.php')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            cartData = data.cart;
+                            // Also sync to localStorage for consistency
+                            localStorage.setItem('userCart', JSON.stringify(cartData));
+                            displayCart(cartData);
+                        } else {
+                            console.error('Failed to load cart from database');
+                            loadFromLocalStorage();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching cart:', err);
+                        loadFromLocalStorage();
+                    });
+            } else {
+                // Guest users: Use localStorage
+                loadFromLocalStorage();
+            }
+        }
+
+        function loadFromLocalStorage() {
+            cartData = JSON.parse(localStorage.getItem('userCart')) || [];
+            displayCart(cartData);
+        }
+
+        function displayCart(cart) {
             const cartList = document.getElementById('cartList');
             const header = '<div class="cart-header">Shopping Cart</div>';
             
@@ -156,18 +186,42 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
         }
 
         function changeQty(index, delta) {
-            let cart = JSON.parse(localStorage.getItem('userCart'));
-            cart[index].quantity += delta;
-            if (cart[index].quantity < 1) cart[index].quantity = 1;
-            localStorage.setItem('userCart', JSON.stringify(cart));
-            loadCart();
+            cartData[index].quantity += delta;
+            if (cartData[index].quantity < 1) cartData[index].quantity = 1;
+            
+            // Update localStorage
+            localStorage.setItem('userCart', JSON.stringify(cartData));
+            
+            // If logged in, sync to database
+            if (isLoggedIn) {
+                syncCartToDatabase();
+            }
+            
+            displayCart(cartData);
         }
 
         function removeItem(index) {
-            let cart = JSON.parse(localStorage.getItem('userCart'));
-            cart.splice(index, 1);
-            localStorage.setItem('userCart', JSON.stringify(cart));
-            loadCart();
+            cartData.splice(index, 1);
+            
+            // Update localStorage
+            localStorage.setItem('userCart', JSON.stringify(cartData));
+            
+            // If logged in, sync to database
+            if (isLoggedIn) {
+                syncCartToDatabase();
+            }
+            
+            displayCart(cartData);
+        }
+
+        function syncCartToDatabase() {
+            fetch('cart.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'sync_cart', cart: cartData })
+            })
+            .then(res => res.json())
+            .catch(err => console.error('Error syncing cart:', err));
         }
 
         function updateTotals(subtotal) {
@@ -182,26 +236,23 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
                 return;
             }
 
-            const cart = JSON.parse(localStorage.getItem('userCart')) || [];
-            if (cart.length === 0) {
+            if (cartData.length === 0) {
                 alert("Your cart is empty!");
                 return;
             }
 
-            // --- CHANGED: Sync localStorage to Database before redirecting ---
+            // Sync to database before checkout
             fetch('cart.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'sync_cart', cart: cart })
+                body: JSON.stringify({ action: 'sync_cart', cart: cartData })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Once database is updated, we can safely go to checkout.php
                     window.location.href = 'checkout.php';
                 } else {
                     alert("Error preparing checkout. Please try again.");
-                    console.error('Server response:', data);
                 }
             })
             .catch(err => {

@@ -1,6 +1,6 @@
 <?php
 // Chung's Fetcher Script
-include 'db.php'; // Use your connection
+include 'includes/db.php'; // Use your connection
 
 $sql = "SELECT * FROM products";
 $result = $conn->query($sql);

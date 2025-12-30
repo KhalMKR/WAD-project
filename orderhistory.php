@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
@@ -278,7 +278,8 @@ $res = $stmt->get_result();
         </div>
     </div>
 
-    <script src="utils.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/utils.js"></script>
     <script>
         // Update cart count in navbar
         updateCartCount();

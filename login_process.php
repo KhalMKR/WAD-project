@@ -1,6 +1,6 @@
 <?php
 
-include 'db.php'; // Include your database connection script
+include 'includes/db.php'; // Include your database connection script
 
 session_start();
 

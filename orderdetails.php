@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
 if (!isset($_SESSION['userID'])) {
     header('Location: login.html');
@@ -420,7 +420,7 @@ $orderTotal = pickFirst($order, ['totalAmount','total','total_amount','amount','
         </div>
     </div>
 
-    <script src="utils.js"></script>
+    <script src="assets/js/utils.js"></script>
     <script>
         // Update cart count in navbar
         updateCartCount();

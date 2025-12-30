@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
 // Debug: Check session
 error_log("Product page session data: " . json_encode($_SESSION));
