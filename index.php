@@ -24,6 +24,7 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         /* Add to Cart button styling */
         .add-to-cart-btn {
@@ -59,8 +60,35 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
             color: white;
             text-decoration: none;
             font-weight: 500;
+        }        /* Cart Notification */
+        .cart-notification {
+            position: fixed;
+            top: 80px;
+            right: -400px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 10000;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
         }
-    </style>
+        .cart-notification .checkmark {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #28a745;
+            font-size: 20px;
+            flex-shrink: 0;
+        }    </style>
 </head>
 <body>
     <navbar>
@@ -157,20 +185,20 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
                     // Also update localStorage for consistency
                     addToLocalStorage(id, name, price, image);
                     updateCartCount();
-                    alert(name + " has been added to your cart!");
+                    showCartNotification(name);
                 } else {
-                    alert('Failed to add to cart: ' + data.message);
+                    showCartNotification('Failed to add: ' + data.message, false);
                 }
             })
             .catch(err => {
                 console.error('Error adding to cart:', err);
-                alert('Error connecting to server');
+                showCartNotification('Error connecting to server', false);
             });
         } else {
             // Guest users: Use localStorage only
             addToLocalStorage(id, name, price, image);
             updateCartCount();
-            alert(name + " has been added to your cart!");
+            showCartNotification(name);
         }
     }
 
@@ -194,6 +222,62 @@ $userID = $isLoggedIn ? $_SESSION['userID'] : '';
 
         // Persist to local storage
         localStorage.setItem('userCart', JSON.stringify(cart));
+    }
+
+    function showCartNotification(productName, success = true) {
+        // Create notification element if it doesn't exist
+        let notification = document.getElementById('cartNotification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'cartNotification';
+            notification.className = 'cart-notification';
+            document.body.appendChild(notification);
+        }
+        
+        // Set notification content
+        const icon = success ? '✓' : '✕';
+        const bgColor = success ? 'linear-gradient(135deg, #28a745 0%, #20c997 100%)' : 'linear-gradient(135deg, #dc3545 0%, #fd7e14 100%)';
+        notification.style.background = bgColor;
+        notification.innerHTML = `
+            <div class="checkmark">${icon}</div>
+            <div>${success ? productName + ' added to cart!' : productName}</div>
+        `;
+        
+        // Animate cart badge if it exists
+        const cartBadge = document.getElementById('cartCount');
+        if (cartBadge && success) {
+            anime({
+                targets: '#cartCount',
+                scale: [1, 1.8, 1],
+                rotate: [0, 10, -10, 0],
+                duration: 700,
+                easing: 'easeInOutQuad'
+            });
+        }
+        
+        // Slide in notification from right
+        anime.timeline()
+            .add({
+                targets: notification,
+                right: [-400, 30],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            })
+            .add({
+                targets: notification,
+                scale: [1, 1.05, 1],
+                duration: 300,
+                easing: 'easeInOutQuad'
+            })
+            .add({
+                targets: notification,
+                right: [30, -400],
+                opacity: [1, 0],
+                duration: 500,
+                delay: 2000,
+                easing: 'easeInExpo'
+            });
     }
 
     /**

@@ -32,12 +32,26 @@ $product = $res->fetch_assoc();
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title><?php echo htmlspecialchars($product['name']); ?> - UniMerch Hub</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         .product-page { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
         .product-image img { width:100%; border-radius:8px; max-height:480px; object-fit:cover; }
         .product-info { background:white; padding:20px; border-radius:8px; }
         .price { color:#7742cc; font-size:24px; font-weight:700; margin-top:8px; }
-        .add-btn { margin-top:20px; background:#7742cc; color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:700; }
+        .add-btn { margin-top:20px; background:#7742cc; color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:700; transition: all 0.3s; }
+        .add-btn:active { transform: scale(0.95); }
+        .cart-notification { 
+            position:fixed; top:80px; right:-400px; 
+            background:linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color:white; padding:20px 30px; border-radius:10px; 
+            box-shadow:0 8px 24px rgba(0,0,0,0.3); z-index:10000; 
+            min-width:300px; display:flex; align-items:center; gap:15px; font-weight:600;
+        }
+        .cart-notification .checkmark {
+            width:30px; height:30px; background:white; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            color:#28a745; font-size:20px; flex-shrink:0;
+        }
         @media(max-width:800px){ .product-page{grid-template-columns:1fr} }
     </style>
 </head>
@@ -46,6 +60,11 @@ $product = $res->fetch_assoc();
         <a href="index.php"><img src="assets/images/logo.png" alt="Logo" class="logo"></a>
         <div id="authArea"></div>
     </navbar>
+
+    <div id="cartNotification" class="cart-notification">
+        <div class="checkmark">✓</div>
+        <div>Added to cart!</div>
+    </div>
 
     <div class="container">
         <div class="product-page">
@@ -95,13 +114,57 @@ $product = $res->fetch_assoc();
             }
             
             localStorage.setItem('userCart', JSON.stringify(cart));
-            alert(productName + ' added to cart!');
             
             // Update cart count if it exists
             const cartBadge = document.getElementById('cartCount');
             if (cartBadge) {
-                cartBadge.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+                const newCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartBadge.innerText = newCount;
+                
+                // Animate cart badge
+                anime({
+                    targets: '#cartCount',
+                    scale: [1, 1.8, 1],
+                    rotate: [0, 10, -10, 0],
+                    duration: 700,
+                    easing: 'easeInOutQuad'
+                });
             }
+            
+            // Animate add to cart button
+            anime({
+                targets: '.add-btn',
+                scale: [1, 0.95, 1],
+                backgroundColor: ['#7742cc', '#28a745', '#7742cc'],
+                duration: 500,
+                easing: 'easeInOutQuad'
+            });
+            
+            // Show animated notification
+            const notification = document.getElementById('cartNotification');
+            
+            anime.timeline()
+                .add({
+                    targets: '#cartNotification',
+                    right: [-400, 30],
+                    opacity: [0, 1],
+                    duration: 600,
+                    easing: 'easeOutElastic(1, .8)'
+                })
+                .add({
+                    targets: '#cartNotification',
+                    scale: [1, 1.05, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad'
+                })
+                .add({
+                    targets: '#cartNotification',
+                    right: [30, -400],
+                    opacity: [1, 0],
+                    duration: 500,
+                    delay: 2000,
+                    easing: 'easeInExpo'
+                });
         }
     </script>
 </body>

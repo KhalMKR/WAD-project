@@ -50,6 +50,7 @@ if (empty($cartItems)) {
     <title>Checkout - UniMerch Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         .checkout-container { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-top: 30px; }
         .form-section { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -69,7 +70,9 @@ if (empty($cartItems)) {
         .place-order-btn { 
             width: 100%; background: #28a745; color: white; border: none; padding: 15px; 
             border-radius: 5px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 20px;
+            transition: all 0.3s;
         }
+        .place-order-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
 
         /* Success Overlay Styles */
         #successOverlay {
@@ -79,6 +82,16 @@ if (empty($cartItems)) {
         .receipt-card {
             background: white; padding: 40px; border-radius: 15px; width: 90%; max-width: 500px;
             text-align: center; position: relative; font-family: 'Poppins', sans-serif;
+            transform: scale(0); opacity: 0;
+        }
+        .checkmark-circle {
+            width: 80px; height: 80px; border-radius: 50%; background: #28a745;
+            margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+            transform: scale(0);
+        }
+        .checkmark {
+            width: 40px; height: 20px; border-left: 4px solid white; border-bottom: 4px solid white;
+            transform: rotate(-45deg) scale(0);
         }
         .receipt-header { color: #28a745; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
         .receipt-details { text-align: left; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
@@ -251,7 +264,50 @@ if (empty($cartItems)) {
                         document.getElementById('receiptTotal').innerText = document.getElementById('checkTotal').innerText;
                         document.getElementById('receiptItemsList').innerHTML = document.getElementById('checkoutItems').innerHTML;
 
+                        // Show and animate success overlay
                         document.getElementById('successOverlay').style.display = 'flex';
+                        
+                        // Animate success overlay
+                        anime.timeline()
+                            .add({
+                                targets: '#successOverlay',
+                                opacity: [0, 1],
+                                duration: 300,
+                                easing: 'easeOutQuad'
+                            })
+                            .add({
+                                targets: '.receipt-card',
+                                scale: [0, 1],
+                                opacity: [0, 1],
+                                duration: 600,
+                                easing: 'easeOutElastic(1, .8)'
+                            }, '-=100')
+                            .add({
+                                targets: '.checkmark-circle',
+                                scale: [0, 1],
+                                duration: 400,
+                                easing: 'easeOutBack'
+                            }, '-=400')
+                            .add({
+                                targets: '.checkmark',
+                                scale: [0, 1],
+                                duration: 300,
+                                easing: 'easeOutBack'
+                            }, '-=200')
+                            .add({
+                                targets: '.receipt-header',
+                                translateY: [-20, 0],
+                                opacity: [0, 1],
+                                duration: 400,
+                                easing: 'easeOutQuad'
+                            }, '-=200')
+                            .add({
+                                targets: '.receipt-details',
+                                translateY: [20, 0],
+                                opacity: [0, 1],
+                                duration: 400,
+                                easing: 'easeOutQuad'
+                            }, '-=300');
                     } else {
                         alert('Failed to place order: ' + (response.message || 'Unknown error'));
                         // Re-enable button on failure

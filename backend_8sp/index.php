@@ -23,6 +23,30 @@ $orderCountQuery = "SELECT COUNT(*) as total FROM orders";
 $orderCountResult = $conn->query($orderCountQuery);
 $totalOrders = $orderCountResult->fetch_assoc()['total'];
 
+// Get last 7 days revenue data for chart
+$revenueChartQuery = "SELECT DATE(orderDate) as date, SUM(totalAmount) as revenue 
+                      FROM orders 
+                      WHERE orderDate >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+                      GROUP BY DATE(orderDate) 
+                      ORDER BY date ASC";
+$revenueChartResult = $conn->query($revenueChartQuery);
+$revenueData = [];
+while($row = $revenueChartResult->fetch_assoc()) {
+    $revenueData[] = $row;
+}
+
+// Get last 7 days order count for chart
+$ordersChartQuery = "SELECT DATE(orderDate) as date, COUNT(*) as count 
+                     FROM orders 
+                     WHERE orderDate >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+                     GROUP BY DATE(orderDate) 
+                     ORDER BY date ASC";
+$ordersChartResult = $conn->query($ordersChartQuery);
+$ordersData = [];
+while($row = $ordersChartResult->fetch_assoc()) {
+    $ordersData[] = $row;
+}
+
 // users table does not contain status/joinDate in this schema; select available columns
 $recentUsersQuery = "SELECT userID AS id, fullName, email, userType FROM users ORDER BY userID DESC LIMIT 5";
 $recentUsersResult = $conn->query($recentUsersQuery);
@@ -57,8 +81,11 @@ $recentUsersResult = $conn->query($recentUsersQuery);
         .badge.success { background-color: #d4edda; color: #155724; }
         .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
         .btn-primary { background-color: #27ae60; color: white; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .chart-container { position: relative; height: 300px; }
         footer { background: white; padding: 20px; text-align: center; color: #7f8c8d; margin-left: 250px; border-top: 1px solid #ecf0f1; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -95,6 +122,21 @@ $recentUsersResult = $conn->query($recentUsersQuery);
                 </div>
             </div>
 
+            <div class="charts-grid">
+                <div class="section">
+                    <h3>Revenue Trend (Last 7 Days)</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Orders Trend (Last 7 Days)</h3>
+                    <div class="chart-container">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <section class="section">
                 <h3>Recent Registered Members</h3>
                 <div class="table-container">
@@ -125,5 +167,110 @@ $recentUsersResult = $conn->query($recentUsersQuery);
     <footer>
         <p>&copy; 2025 Admin Dashboard. All rights reserved.</p>
     </footer>
+
+    <script>
+        // Prepare data for charts
+        const revenueData = <?php echo json_encode($revenueData); ?>;
+        const ordersData = <?php echo json_encode($ordersData); ?>;
+
+        // Create array of last 7 days
+        const last7Days = [];
+        for(let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            last7Days.push(date.toISOString().split('T')[0]);
+        }
+
+        // Map revenue data
+        const revenueMap = {};
+        revenueData.forEach(item => {
+            revenueMap[item.date] = parseFloat(item.revenue);
+        });
+        const revenueValues = last7Days.map(date => revenueMap[date] || 0);
+
+        // Map orders data
+        const ordersMap = {};
+        ordersData.forEach(item => {
+            ordersMap[item.date] = parseInt(item.count);
+        });
+        const ordersValues = last7Days.map(date => ordersMap[date] || 0);
+
+        // Format dates for display
+        const labels = last7Days.map(date => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-MY', { month: 'short', day: 'numeric' });
+        });
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (RM)',
+                    data: revenueValues,
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'RM ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Orders Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Orders Count',
+                    data: ordersValues,
+                    backgroundColor: '#3498db',
+                    borderColor: '#2980b9',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
