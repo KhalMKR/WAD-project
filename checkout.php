@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'includes/db.php';
+include 'config.php';
 
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {

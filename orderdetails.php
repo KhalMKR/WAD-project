@@ -1,6 +1,8 @@
 <?php
 session_start();
 include 'includes/db.php';
+include 'config.php';
+
 
 if (!isset($_SESSION['userID'])) {
     header('Location: login.html');
@@ -94,27 +96,25 @@ $custPhone = pickFirst($order, ['phone','telephone']);
 $custAddress = pickFirst($order, ['address']);
 $custPayment = pickFirst($order, ['paymentMethod','payment_method','payment']);
 
+// Get the actual numeric orderID from the order record
+$actualOrderID = pickFirst($order, ['orderID','id','order_id','orderId']);
+
+// DEBUG: Uncomment to see what's being queried
+echo "<!-- DEBUG: Order Param: $orderParam, Actual OrderID: $actualOrderID -->";
+
 // Fetch items from dedicated `order_items` table if present
 $items = [];
-$checkItems = $conn->prepare("SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = ? AND table_name = 'order_items'");
-if ($checkItems) {
-    $dbn = $dbname;
-    $checkItems->bind_param('s', $dbn);
-    $checkItems->execute();
-    $cr = $checkItems->get_result();
-    if ($cr && ($r = $cr->fetch_assoc()) && intval($r['cnt']) > 0) {
-        $q = $conn->prepare("SELECT * FROM order_items WHERE orderID = ?");
-        if ($q) {
-            $q->bind_param('s', $orderParam);
-            $q->execute();
-            $res = $q->get_result();
-            if ($res && $res->num_rows > 0) {
-                while ($row = $res->fetch_assoc()) $items[] = $row;
-            }
-            $q->close();
+$q = $conn->prepare("SELECT * FROM order_items WHERE orderID = ?");
+if ($q) {
+    $q->bind_param('i', $actualOrderID);
+    $q->execute();
+    $res = $q->get_result();
+    if ($res && $res->num_rows > 0) {
+        while ($row = $res->fetch_assoc()) {
+            $items[] = $row;
         }
     }
-    $checkItems->close();
+    $q->close();
 }
 
 $isLoggedIn = isset($_SESSION['email']) && isset($_SESSION['fullName']) && isset($_SESSION['userID']);

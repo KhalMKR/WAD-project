@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: sql109.infinityfree.com
--- Generation Time: Jan 04, 2026 at 06:44 AM
+-- Generation Time: Jan 04, 2026 at 07:33 AM
 -- Server version: 11.4.9-MariaDB
 -- PHP Version: 7.2.22
 
@@ -35,6 +35,13 @@ CREATE TABLE `cart` (
   `quantity` int(11) NOT NULL DEFAULT 1,
   `dateAdded` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`cartItemID`, `userID`, `productID`, `quantity`, `dateAdded`) VALUES
+(52, 6, 2, 1, '2026-01-04 12:23:36');
 
 -- --------------------------------------------------------
 
@@ -70,7 +77,11 @@ INSERT INTO `orders` (`orderID`, `userID`, `totalAmount`, `orderDate`, `fullName
 (9, 3, '30.00', '2025-12-31 10:48:55', 'khal', '012-3456789', 'Batu 8', 'Bank Transfer', 'UMH-000009'),
 (10, 5, '85.00', '2026-01-04 09:48:38', 'Khalish', '011-29180129', 'Batu Kitang', 'Bank Transfer', 'UMH-000010'),
 (11, 5, '15.00', '2026-01-04 09:58:50', 'Khalish', '012-12358305', 'Kuching', 'Card', 'UMH-000011'),
-(12, 5, '90.00', '2026-01-04 10:09:40', 'Khalish', '011-29180129', 'Betong', 'Bank Transfer', 'UMH-000012');
+(12, 5, '90.00', '2026-01-04 10:09:40', 'Khalish', '011-29180129', 'Betong', 'Bank Transfer', 'UMH-000012'),
+(13, 5, '15.00', '2026-01-04 12:14:51', 'Khalish', '011-12312312', 'Betong', 'Bank Transfer', 'UMH-AGA76D'),
+(14, 6, '230.00', '2026-01-04 12:17:00', 'AFIQ ZHARFAN BIN ZAIDIN', '0198840977', 'LOT 5348, LRG 6, JLN DATO PERMAISURI 3C', 'Bank Transfer', 'UMH-7P8XME'),
+(15, 7, '155.00', '2026-01-04 12:25:36', 'chung lik chiann', '0137771542', 'HSE 19, LOT 30, LORONG NOUNTUN JUTA 1', 'Bank Transfer', 'UMH-YAMLVD'),
+(16, 5, '10.00', '2026-01-04 12:30:41', 'Khalish', '011-29180129', 'Kuching', 'Bank Transfer', 'UMH-KH5USL');
 
 -- --------------------------------------------------------
 
@@ -106,7 +117,16 @@ INSERT INTO `order_items` (`itemID`, `orderID`, `productID`, `name`, `price`, `q
 (12, 9, 3, 'UniMerch Cap', '30.00', 1),
 (13, 10, 1, 'UNIMAS Hoodie', '85.00', 1),
 (14, 11, 2, 'FCSIT Lanyard', '15.00', 1),
-(15, 12, 3, 'UniMerch Cap', '30.00', 3);
+(15, 12, 3, 'UniMerch Cap', '30.00', 3),
+(17, 14, 1, 'UNIMAS Hoodie', '85.00', 1),
+(20, 13, 2, 'FCSIT Lanyard', '15.00', 1),
+(21, 14, 1, 'UNIMAS Hoodie', '85.00', 2),
+(22, 14, 7, 'FCSIT T-shirt', '35.00', 1),
+(23, 14, 4, 'Bracelet', '10.00', 1),
+(24, 14, 2, 'FCSIT Lanyard', '15.00', 1),
+(25, 15, 7, 'FCSIT T-shirt', '35.00', 2),
+(26, 15, 1, 'UNIMAS Hoodie', '85.00', 1),
+(27, 16, 4, 'Bracelet', '10.00', 1);
 
 -- --------------------------------------------------------
 
@@ -132,7 +152,8 @@ INSERT INTO `products` (`productID`, `name`, `price`, `category`, `imagePath`, `
 (2, 'FCSIT Lanyard', '15.00', 'Accessories', 'assets/images/lanyard.png', 100),
 (3, 'UniMerch Cap', '30.00', 'Clothing', 'assets/images/cap.png', 50),
 (4, 'Bracelet', '10.00', 'Accessory', 'assets/images/bracelet.png', 50),
-(7, 'FCSIT T-shirt', '35.00', 'Clothing', 'assets/images/1767525266_Gemini_Generated_Image_4wdy9v4wdy9v4wdy.png', 20);
+(7, 'FCSIT T-shirt', '35.00', 'Clothing', 'assets/images/1767525266_Gemini_Generated_Image_4wdy9v4wdy9v4wdy.png', 20),
+(8, 'Unimerch Backpack', '100.00', 'Accessories', 'assets/images/1767529340_Gemini_Generated_Image_eketegeketegeket.png', 30);
 
 -- --------------------------------------------------------
 
@@ -177,6 +198,7 @@ ALTER TABLE `cart`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
+  ADD PRIMARY KEY (`orderID`),
   ADD UNIQUE KEY `orderNumber` (`orderNumber`),
   ADD KEY `userID` (`userID`);
 
@@ -207,19 +229,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `cartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `itemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `itemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `productID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `productID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -245,6 +267,12 @@ ALTER TABLE `cart`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `fk_order_items_order` FOREIGN KEY (`orderID`) REFERENCES `orders` (`orderID`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
