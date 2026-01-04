@@ -8,6 +8,7 @@ npm-debug.log
 yarn-debug.log
 yarn-error.log
 .idea/
+config.php
 config.php.local
 *.log
 *.sqlite

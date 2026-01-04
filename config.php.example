@@ -1,0 +1,15 @@
+<?php
+// Configuration file for sensitive data
+// Copy this file to config.php and fill in your actual credentials
+
+// Brevo SMTP Settings
+define('SMTP_HOST', 'smtp-relay.brevo.com');
+define('SMTP_USERNAME', 'your-brevo-email@example.com');
+define('SMTP_PASSWORD', 'your-brevo-smtp-key');
+define('SMTP_PORT', 587);
+
+// Email settings
+define('EMAIL_FROM', 'no-reply@unimerchhub.com');
+define('EMAIL_FROM_NAME', 'UniMerch Hub');
+define('EMAIL_REPLY_TO', 'support@unimerchhub.com');
+?>

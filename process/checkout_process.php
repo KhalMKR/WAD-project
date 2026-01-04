@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../includes/db.php'; // Using the connection you made
+include '../config.php'; // Include configuration
 
 // Include PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
@@ -134,17 +135,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             // Server settings - Brevo SMTP
             $mail->isSMTP();
-            $mail->Host       = 'smtp-relay.brevo.com';
+            $mail->Host       = SMTP_HOST;
             $mail->SMTPAuth   = true;
-            $mail->Username   = '9f41f2001@smtp-brevo.com'; 
-            $mail->Password   = 'xsmtpsib-9a1c2d0f00415c1a9878faa129c49953b14051c7b6b5cb65468d67372d383706-LoUaykTpki7NCA7w';          // Your Brevo SMTP key
+            $mail->Username   = SMTP_USERNAME;
+            $mail->Password   = SMTP_PASSWORD;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port       = SMTP_PORT;
             
             // Recipients
-            $mail->setFrom('muhdkhalishreeza@gmail.com', 'UniMerch Hub');
+            $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
             $mail->addAddress($email, $custName ?: 'Customer');
-            $mail->addReplyTo('support@unimerchhub.com', 'Support');
+            $mail->addReplyTo(EMAIL_REPLY_TO, 'Support');
             
             // Content
             $mail->isHTML(false);

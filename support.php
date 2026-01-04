@@ -8,6 +8,7 @@ use PHPMailer\PHPMailer\Exception;
 require 'phpmailer/Exception.php';
 require 'phpmailer/PHPMailer.php';
 require 'phpmailer/SMTP.php';
+require 'config.php'; // Include configuration
 
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
@@ -40,12 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Server settings - Brevo SMTP
             $mail->isSMTP();
-            $mail->Host       = 'smtp-relay.brevo.com';
+            $mail->Host       = SMTP_HOST;
             $mail->SMTPAuth   = true;
-            $mail->Username   = '9f41f2001@smtp-brevo.com'; 
-            $mail->Password   = 'xsmtpsib-9a1c2d0f00415c1a9878faa129c49953b14051c7b6b5cb65468d67372d383706-LoUaykTpki7NCA7w'; 
+            $mail->Username   = SMTP_USERNAME;
+            $mail->Password   = SMTP_PASSWORD;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port       = SMTP_PORT;
             
             // Recipients
             $mail->setFrom($email, $fullName);
