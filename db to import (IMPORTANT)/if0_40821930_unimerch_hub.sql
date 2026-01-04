@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: sql109.infinityfree.com
--- Generation Time: Jan 04, 2026 at 07:33 AM
+-- Generation Time: Jan 04, 2026 at 08:00 AM
 -- Server version: 11.4.9-MariaDB
 -- PHP Version: 7.2.22
 
@@ -68,8 +68,6 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`orderID`, `userID`, `totalAmount`, `orderDate`, `fullName`, `phone`, `address`, `paymentMethod`, `orderNumber`) VALUES
 (1, 3, '40.00', '2025-12-23 00:36:28', 'khal', '011-29180129', 'kuching', 'Bank Transfer', 'UMH-000001'),
 (2, 3, '30.00', '2025-12-23 00:44:58', 'khal', '011-21231311', 'Betong', 'Card', 'UMH-000002'),
-(3, 4, '15.00', '2025-12-23 00:55:07', 'Beta', '011-98798722', 'Lahad Datu', 'Card', 'UMH-000003'),
-(4, 4, '85.00', '2025-12-23 01:12:24', 'Afiq', '013-71271264', 'California', 'E-Wallet', 'UMH-000004'),
 (5, 3, '30.00', '2025-12-30 12:33:16', 'Khal', '011-98798722', 'PermyJaya', 'E-Wallet', 'UMH-000005'),
 (6, 3, '30.00', '2025-12-30 12:33:21', 'Khal', '011-98798722', 'PermyJaya', 'E-Wallet', 'UMH-000006'),
 (7, 3, '75.00', '2025-12-30 12:46:05', 'Piqzhar', '019-86779976', 'Taman Gamelan', 'Card', 'UMH-000007'),
@@ -81,7 +79,11 @@ INSERT INTO `orders` (`orderID`, `userID`, `totalAmount`, `orderDate`, `fullName
 (13, 5, '15.00', '2026-01-04 12:14:51', 'Khalish', '011-12312312', 'Betong', 'Bank Transfer', 'UMH-AGA76D'),
 (14, 6, '230.00', '2026-01-04 12:17:00', 'AFIQ ZHARFAN BIN ZAIDIN', '0198840977', 'LOT 5348, LRG 6, JLN DATO PERMAISURI 3C', 'Bank Transfer', 'UMH-7P8XME'),
 (15, 7, '155.00', '2026-01-04 12:25:36', 'chung lik chiann', '0137771542', 'HSE 19, LOT 30, LORONG NOUNTUN JUTA 1', 'Bank Transfer', 'UMH-YAMLVD'),
-(16, 5, '10.00', '2026-01-04 12:30:41', 'Khalish', '011-29180129', 'Kuching', 'Bank Transfer', 'UMH-KH5USL');
+(16, 5, '10.00', '2026-01-04 12:30:41', 'Khalish', '011-29180129', 'Kuching', 'Bank Transfer', 'UMH-KH5USL'),
+(17, 5, '140.00', '2026-01-04 20:51:59', 'Khalish', '011-12312312', 'Betong', 'E-Wallet', 'UMH-LXKXU6'),
+(18, 5, '15.00', '2026-01-05 04:54:54', 'Khalish', '012-3456789', 'Batu Kitang', 'Bank Transfer', 'UMH-AK8X6K'),
+(19, 5, '35.00', '2026-01-05 04:57:24', 'Khalish', '011-98798722', 'Batu 7', 'E-Wallet', 'UMH-H3X75X'),
+(20, 5, '100.00', '2026-01-05 04:58:38', 'Khalish', '011-29180129', 'Kuching', 'E-Wallet', 'UMH-B59VNP');
 
 -- --------------------------------------------------------
 
@@ -106,8 +108,6 @@ INSERT INTO `order_items` (`itemID`, `orderID`, `productID`, `name`, `price`, `q
 (1, 1, 3, 'UniMerch Cap', '30.00', 1),
 (2, 1, 4, 'Bracelet', '10.00', 1),
 (3, 2, 3, 'UniMerch Cap', '30.00', 1),
-(4, 3, 2, 'FCSIT Lanyard', '15.00', 1),
-(5, 4, 1, 'UNIMAS Hoodie', '85.00', 1),
 (6, 5, 4, 'Bracelet', '10.00', 3),
 (7, 6, 4, 'Bracelet', '10.00', 3),
 (8, 7, 3, 'UniMerch Cap', '30.00', 2),
@@ -126,7 +126,13 @@ INSERT INTO `order_items` (`itemID`, `orderID`, `productID`, `name`, `price`, `q
 (24, 14, 2, 'FCSIT Lanyard', '15.00', 1),
 (25, 15, 7, 'FCSIT T-shirt', '35.00', 2),
 (26, 15, 1, 'UNIMAS Hoodie', '85.00', 1),
-(27, 16, 4, 'Bracelet', '10.00', 1);
+(27, 16, 4, 'Bracelet', '10.00', 1),
+(28, 17, 8, 'Unimerch Backpack', '100.00', 1),
+(29, 17, 4, 'Bracelet', '10.00', 1),
+(30, 17, 3, 'UniMerch Cap', '30.00', 1),
+(31, 18, 2, 'FCSIT Lanyard', '15.00', 1),
+(32, 19, 7, 'FCSIT T-shirt', '35.00', 1),
+(33, 20, 8, 'Unimerch Backpack', '100.00', 1);
 
 -- --------------------------------------------------------
 
@@ -176,7 +182,6 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`userID`, `fullName`, `email`, `password`, `userType`) VALUES
 (1, 'Admin', 'admin@unimhub.com', '$2y$10$FUG2SXSlNiggezw6AaTScOtMnItMWC4sNNPg0GiXGc1WM33nBd.7q', 'admin'),
 (3, 'khal', 'khal@mail.com', '$2y$10$E0h9ul.hQLtz2fh/3qzI6e3bFj/bsLbbnRpXwUHaF6PoO5v3AT3uq', 'user'),
-(4, 'Beta', 'beta@mail.com', '$2y$10$Rg3eAahwH.djsBrgAgQWuOIHTr.T7Zgepw31D0I4788tEIbjfIhqm', 'user'),
 (5, 'Khalish', 'muhdkhalishreeza@gmail.com', '$2y$10$duDyQUQrIq7WWeMUVN4j3Oj0tIqWZjap6jbOQMLvkqC9GWsFRd4L2', 'user'),
 (6, 'AFIQ ZHARFAN BIN ZAIDIN', 'afiqzharfan24@gmail.com', '$2y$10$KANDs8mHvtfPoPminGobtO.TZ.TcS.eWMfGIQwnrSR/9o2hNLR0oW', 'user'),
 (7, 'chung lik chiann', 'cchunglik@gmail.com', '$2y$10$AgoNvrBSRFltD7ZFE62wCuneeQ3p2RdYXOXjfWWG9sW1pWKpEJhvK', 'user');
@@ -229,19 +234,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `cartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `itemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `itemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `productID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `productID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `users`
