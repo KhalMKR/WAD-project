@@ -14,7 +14,7 @@ if (isset($_SESSION['userID'])) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT orderID, userID, totalAmount, orderDate FROM orders WHERE userID = ? ORDER BY orderDate DESC");
+$stmt = $conn->prepare("SELECT orderID, userID, totalAmount, orderDate, orderNumber FROM orders WHERE userID = ? ORDER BY orderDate DESC");
 if (!$stmt) {
     echo json_encode(['error' => 'Prepare failed', 'details' => $conn->error]);
     exit;
@@ -30,7 +30,8 @@ while ($row = $result->fetch_assoc()) {
         'orderID' => (int)$row['orderID'],
         'userID' => (int)$row['userID'],
         'totalAmount' => (float)$row['totalAmount'],
-        'orderDate' => $row['orderDate']
+        'orderDate' => $row['orderDate'],
+        'orderNumber' => $row['orderNumber'] ?? 'UMH-' . str_pad($row['orderID'], 6, '0', STR_PAD_LEFT)
     ];
 }
 

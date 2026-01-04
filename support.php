@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+// Include PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'phpmailer/Exception.php';
+require 'phpmailer/PHPMailer.php';
+require 'phpmailer/SMTP.php';
+
 // Redirect admin users back to admin dashboard
 if (isset($_SESSION['userType']) && $_SESSION['userType'] === 'admin') {
     header('Location: ./backend_8sp/index.php');
@@ -26,9 +34,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = htmlspecialchars(trim($_POST['message'] ?? ''));
     
     if (!empty($subject) && !empty($message)) {
-        // Here you would typically save to database or send email
-        // For now, we'll just set success flag
-        $messageSent = true;
+        // Send email using PHPMailer
+        try {
+            $mail = new PHPMailer(true);
+            
+            // Server settings - Brevo SMTP
+            $mail->isSMTP();
+            $mail->Host       = 'smtp-relay.brevo.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = '9f41f2001@smtp-brevo.com'; 
+            $mail->Password   = 'xsmtpsib-9a1c2d0f00415c1a9878faa129c49953b14051c7b6b5cb65468d67372d383706-LoUaykTpki7NCA7w'; 
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+            
+            // Recipients
+            $mail->setFrom($email, $fullName);
+            $mail->addAddress('muhdkhalishreeza@gmail.com', 'UniMerch Support');
+            $mail->addReplyTo($email, $fullName);
+            
+            // Content
+            $mail->isHTML(false);
+            $mail->Subject = "Support Request: " . $subject;
+            $mail->Body    = "From: $fullName ($email)\n\nMessage:\n$message";
+            
+            $mail->send();
+            $messageSent = true;
+        } catch (Exception $e) {
+            $error = 'Failed to send message. Please try again later.';
+            // You can log the error: error_log("Email error: {$mail->ErrorInfo}");
+        }
     } else {
         $error = 'Please fill in all fields.';
     }

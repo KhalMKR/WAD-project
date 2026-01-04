@@ -27,11 +27,11 @@ function pickFirst($row, $candidates) {
 
 // Try a set of queries to be resilient to schema differences
 $queries = [
-    "SELECT * FROM orders WHERE userID = ? ORDER BY orderID DESC",
-    "SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC",
-    "SELECT * FROM orders WHERE userid = ? ORDER BY id DESC",
-    "SELECT * FROM orders WHERE userID = ? ORDER BY id DESC",
-    "SELECT * FROM orders WHERE customer_id = ? ORDER BY id DESC"
+    "SELECT *, COALESCE(orderNumber, CONCAT('UMH-', LPAD(orderID, 6, '0'))) as displayOrderNumber FROM orders WHERE userID = ? ORDER BY orderID DESC",
+    "SELECT *, COALESCE(orderNumber, CONCAT('UMH-', LPAD(id, 6, '0'))) as displayOrderNumber FROM orders WHERE user_id = ? ORDER BY id DESC",
+    "SELECT *, COALESCE(orderNumber, CONCAT('UMH-', LPAD(id, 6, '0'))) as displayOrderNumber FROM orders WHERE userid = ? ORDER BY id DESC",
+    "SELECT *, COALESCE(orderNumber, CONCAT('UMH-', LPAD(orderID, 6, '0'))) as displayOrderNumber FROM orders WHERE userID = ? ORDER BY id DESC",
+    "SELECT *, COALESCE(orderNumber, CONCAT('UMH-', LPAD(id, 6, '0'))) as displayOrderNumber FROM orders WHERE customer_id = ? ORDER BY id DESC"
 ];
 
 $stmt = null;
@@ -243,6 +243,7 @@ $res = $stmt->get_result();
                 <ul class="order-list">
                     <?php while ($order = $res->fetch_assoc()):
                         $orderId = pickFirst($order, ['orderID','id','order_id','orderId']);
+                        $orderNumber = $order['displayOrderNumber'] ?? $order['orderNumber'] ?? 'UMH-' . str_pad($orderId, 6, '0', STR_PAD_LEFT);
                         $total = pickFirst($order, ['totalAmount','total','total_amount','amount','grand_total','total_price','price']);
                         $date = pickFirst($order, ['created_at','order_date','date','created']);
                         if ($total !== null) $totalFmt = 'RM ' . number_format((float)$total, 2);
@@ -250,7 +251,7 @@ $res = $stmt->get_result();
                     ?>
                     <li class="order-item">
                         <div class="order-header">
-                            <span class="order-id">Order #<?php echo htmlspecialchars($orderId ?: 'N/A'); ?></span>
+                            <span class="order-id">Order <?php echo htmlspecialchars($orderNumber ?: 'N/A'); ?></span>
                             <span class="order-total"><?php echo htmlspecialchars($totalFmt); ?></span>
                         </div>
                         <?php if ($date): ?>
@@ -259,7 +260,7 @@ $res = $stmt->get_result();
                                 <?php echo htmlspecialchars($date); ?>
                             </div>
                         <?php endif; ?>
-                        <a href="orderdetails.php?order=<?php echo urlencode($orderId); ?>" class="view-details-btn">
+                        <a href="orderdetails.php?order=<?php echo urlencode($orderNumber); ?>" class="view-details-btn">
                             View Details
                         </a>
                     </li>

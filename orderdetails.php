@@ -15,6 +15,16 @@ if (!$orderParam) {
 }
 
 function tryFetchOrder($conn, $orderId) {
+    // First try to match by orderNumber
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE orderNumber = ? LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param('s', $orderId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res && $res->num_rows === 1) return $res->fetch_assoc();
+    }
+    
+    // Fallback to orderID for backward compatibility
     $idCols = ['orderID','id','order_id','orderId'];
     foreach ($idCols as $col) {
         $sql = "SELECT * FROM orders WHERE $col = ? LIMIT 1";
@@ -112,6 +122,7 @@ $userName = $isLoggedIn ? $_SESSION['fullName'] : '';
 $userType = $isLoggedIn ? $_SESSION['userType'] : '';
 
 $orderIdDisplay = pickFirst($order, ['orderID','id','order_id','orderId']) ?: $orderParam;
+$orderNumber = $order['orderNumber'] ?? 'UMH-' . str_pad($orderIdDisplay, 6, '0', STR_PAD_LEFT);
 $orderDate = pickFirst($order, ['created_at','order_date','date','created']);
 $orderTotal = pickFirst($order, ['totalAmount','total','total_amount','amount','grand_total','total_price','price']);
 ?>
@@ -315,7 +326,7 @@ $orderTotal = pickFirst($order, ['totalAmount','total','total_amount','amount','
             <div class="order-header-card">
                 <h1>
                     <span class="material-symbols-outlined" style="font-size: 32px; vertical-align: middle;">receipt_long</span>
-                    Order #<?php echo htmlspecialchars($orderIdDisplay); ?>
+                    Order <?php echo htmlspecialchars($orderNumber); ?>
                 </h1>
                 <div class="order-meta">
                     <?php if ($orderDate): ?>
