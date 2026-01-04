@@ -25,6 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $custPhone = $_POST['phone'] ?? '';
     $custAddress = $_POST['address'] ?? '';
     $paymentMethod = $_POST['paymentMethod'] ?? '';
+    $orderDateTime = $_POST['orderDateTime'] ?? date('Y-m-d H:i:s'); // Use client time or fallback to server time
     $itemsJson = $_POST['items'] ?? '[]';
     $items = json_decode($itemsJson, true);
 
@@ -100,15 +101,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Generate unique order number
     $orderNumber = generateOrderNumber($conn);
 
-    // Insert specifying orderID explicitly including customer details and orderNumber
-    $stmt = $conn->prepare("INSERT INTO orders (orderID, userID, totalAmount, fullName, phone, address, paymentMethod, orderNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    // Insert specifying orderID explicitly including customer details, orderNumber, and client timestamp
+    $stmt = $conn->prepare("INSERT INTO orders (orderID, userID, totalAmount, fullName, phone, address, paymentMethod, orderNumber, orderDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
         exit;
     }
-    $stmt->bind_param("iidsssss", $nextId, $userID, $total, $custName, $custPhone, $custAddress, $paymentMethod, $orderNumber);
+    $stmt->bind_param("iidssssss", $nextId, $userID, $total, $custName, $custPhone, $custAddress, $paymentMethod, $orderNumber, $orderDateTime);
 
     if ($stmt->execute()) {
+        $stmt->close();
         // Insert items into order_items table if provided
         if (is_array($items) && count($items) > 0) {
             // Insert per item (prepared inside loop)
@@ -129,7 +131,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ---------------------------------------------------------
         // SEND EMAIL NOTIFICATION USING PHPMAILER
         // ---------------------------------------------------------
-        $mail->SMTPDebug = 2;
         try {
             $mail = new PHPMailer(true);
             
