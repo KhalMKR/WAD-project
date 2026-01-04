@@ -26,11 +26,11 @@ if (!in_array($format, $allowed_formats)) {
 }
 
 if ($filter === 'daily') {
-    $sql = "SELECT orderID, userID, totalAmount, orderDate FROM orders WHERE DATE(orderDate) = CURDATE() ORDER BY orderDate DESC";
+    $sql = "SELECT orderID, orderNumber, userID, fullName, phone, address, paymentMethod, totalAmount, orderDate FROM orders WHERE DATE(orderDate) = CURDATE() ORDER BY orderDate DESC";
 } elseif ($filter === 'monthly') {
-    $sql = "SELECT orderID, userID, totalAmount, orderDate FROM orders WHERE MONTH(orderDate)=MONTH(CURDATE()) AND YEAR(orderDate)=YEAR(CURDATE()) ORDER BY orderDate DESC";
+    $sql = "SELECT orderID, orderNumber, userID, fullName, phone, address, paymentMethod, totalAmount, orderDate FROM orders WHERE MONTH(orderDate)=MONTH(CURDATE()) AND YEAR(orderDate)=YEAR(CURDATE()) ORDER BY orderDate DESC";
 } else {
-    $sql = "SELECT orderID, userID, totalAmount, orderDate FROM orders ORDER BY orderDate DESC";
+    $sql = "SELECT orderID, orderNumber, userID, fullName, phone, address, paymentMethod, totalAmount, orderDate FROM orders ORDER BY orderDate DESC";
 }
 
 $rows = [];
@@ -44,9 +44,10 @@ if ($format === 'csv') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="transaction_report_' . $filter . '.csv"');
     $out = fopen('php://output', 'w');
-    fputcsv($out, ['OrderID','UserID','TotalAmount','OrderDate']);
+    fputcsv($out, ['OrderNumber','CustomerName','Phone','Address','PaymentMethod','TotalAmount','OrderDate']);
     foreach ($rows as $r) {
-        fputcsv($out, [$r['orderID'], $r['userID'], $r['totalAmount'], $r['orderDate']]);
+        $orderNum = $r['orderNumber'] ?? 'UMH-' . str_pad($r['orderID'], 6, '0', STR_PAD_LEFT);
+        fputcsv($out, [$orderNum, $r['fullName'], $r['phone'], $r['address'], $r['paymentMethod'], $r['totalAmount'], $r['orderDate']]);
     }
     fclose($out);
     exit;
@@ -72,15 +73,24 @@ if (class_exists('\\Dompdf\\Dompdf') || class_exists('Dompdf\\Dompdf')) {
     $dompdf = new \Dompdf\Dompdf();
     $html = '<h1>Transaction Report</h1>';
     $html .= '<p>Filter: ' . htmlspecialchars($filter) . '</p>';
-    $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%">';
-    $html .= '<thead><tr><th>Order ID</th><th>User ID</th><th>Total</th><th>Order Date</th></tr></thead><tbody>';
+    $html .= '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:10px;">';
+    $html .= '<thead><tr><th>Order Number</th><th>Customer</th><th>Phone</th><th>Address</th><th>Payment</th><th>Total</th><th>Date</th></tr></thead><tbody>';
     foreach ($rows as $r) {
-        $html .= '<tr><td>' . intval($r['orderID']) . '</td><td>' . intval($r['userID']) . '</td><td>RM ' . number_format((float)$r['totalAmount'],2) . '</td><td>' . htmlspecialchars($r['orderDate']) . '</td></tr>';
+        $orderNum = $r['orderNumber'] ?? 'UMH-' . str_pad($r['orderID'], 6, '0', STR_PAD_LEFT);
+        $html .= '<tr>';
+        $html .= '<td>' . htmlspecialchars($orderNum) . '</td>';
+        $html .= '<td>' . htmlspecialchars($r['fullName'] ?? 'N/A') . '</td>';
+        $html .= '<td>' . htmlspecialchars($r['phone'] ?? 'N/A') . '</td>';
+        $html .= '<td>' . htmlspecialchars($r['address'] ?? 'N/A') . '</td>';
+        $html .= '<td>' . htmlspecialchars($r['paymentMethod'] ?? 'N/A') . '</td>';
+        $html .= '<td>RM ' . number_format((float)$r['totalAmount'],2) . '</td>';
+        $html .= '<td>' . htmlspecialchars($r['orderDate']) . '</td>';
+        $html .= '</tr>';
     }
     $html .= '</tbody></table>';
 
     $dompdf->loadHtml($html);
-    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->setPaper('A4', 'landscape');
     $dompdf->render();
     $dompdf->stream('transaction_report_' . $filter . '.pdf', array('Attachment' => 1));
     exit;
@@ -90,9 +100,10 @@ if (class_exists('\\Dompdf\\Dompdf') || class_exists('Dompdf\\Dompdf')) {
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment; filename="transaction_report_' . $filter . '.csv"');
 $out = fopen('php://output', 'w');
-fputcsv($out, ['OrderID','UserID','TotalAmount','OrderDate']);
+fputcsv($out, ['OrderNumber','CustomerName','Phone','Address','PaymentMethod','TotalAmount','OrderDate']);
 foreach ($rows as $r) {
-    fputcsv($out, [$r['orderID'], $r['userID'], $r['totalAmount'], $r['orderDate']]);
+    $orderNum = $r['orderNumber'] ?? 'UMH-' . str_pad($r['orderID'], 6, '0', STR_PAD_LEFT);
+    fputcsv($out, [$orderNum, $r['fullName'], $r['phone'], $r['address'], $r['paymentMethod'], $r['totalAmount'], $r['orderDate']]);
 }
 fclose($out);
 exit;

@@ -73,62 +73,98 @@ if ($r) while ($u = $r->fetch_assoc()) $users[] = $u;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Manage Members</title>
-    <link rel="stylesheet" href="../style.css">
     <style>
-        /* Admin-like compact styles (kept local to avoid global changes) */
-        *{box-sizing:border-box}
-        body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#f5f5f5;color:#333}
-        .container{max-width:1200px;margin:30px auto;padding:20px}
-        .header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-        .btn{padding:8px 12px;border-radius:6px;text-decoration:none;display:inline-block}
-        .btn-primary{background:#3498db;color:#fff}
-        .section{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-        table{width:100%;border-collapse:collapse;margin-top:12px}
-        th,td{padding:12px;border-bottom:1px solid #eef2f5;text-align:left}
-        select,button,input{padding:8px;border-radius:6px;border:1px solid #ddd}
-        form.inline{display:inline-block;margin-right:8px}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; color: #333; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar h1 { font-size: 24px; margin-bottom: 30px; text-align: center; }
+        .nav-menu { list-style: none; }
+        .nav-menu li { margin-bottom: 15px; }
+        .nav-menu a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 5px; transition: background-color 0.3s; }
+        .nav-menu a:hover { background-color: #34495e; }
+        .nav-menu a.active { background-color: #3498db; }
+        .main-content { margin-left: 250px; flex: 1; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .message { background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 5px; margin-bottom: 20px; }
+        .btn { padding: 10px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-danger:hover { background-color: #c0392b; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+        th { background-color: #f8f9fa; font-weight: 600; color: #2c3e50; }
+        tr:hover { background-color: #f8f9fa; }
+        select, input { padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
+        form.inline { display: inline-block; margin-right: 8px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <a href="index.php" class="btn btn-primary">← Back to Dashboard</a>
-            <h1>Manage Members</h1>
-        </div>
-        <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
+        <aside class="sidebar">
+            <h1>Dashboard</h1>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="index.php">🏠 Home</a></li>
+                    <li><a href="manage_members.php" class="active">👥 Members</a></li>
+                    <li><a href="../manage_products.php">📦 Products & Prices</a></li>
+                    <li><a href="../transaction_reports.php">📊 Transaction Reports</a></li>
+                    <li><a href="logout.php">🚪 Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-        <div class="section">
-            <table>
-        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
-        <tbody>
-        <?php foreach ($users as $u): ?>
-            <tr>
-                <td><?php echo (int)$u['userID']; ?></td>
-                <td><?php echo htmlspecialchars($u['fullName']); ?></td>
-                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                <td><?php echo htmlspecialchars($u['userType']); ?></td>
-                <td>
-                    <form method="post" class="inline" style="display:inline-block;margin-right:8px;">
-                        <input type="hidden" name="action" value="setRole">
-                        <input type="hidden" name="userID" value="<?php echo (int)$u['userID']; ?>">
-                        <select name="role">
-                            <option value="user" <?php if ($u['userType']==='user') echo 'selected'; ?>>User</option>
-                            <option value="admin" <?php if ($u['userType']==='admin') echo 'selected'; ?>>Admin</option>
-                        </select>
-                        <button type="submit">Save</button>
-                    </form>
-                    <?php if ((int)$u['userID'] !== (int)$_SESSION['userID']): ?>
-                        <a href="manage_members.php?delete=<?php echo (int)$u['userID']; ?>" onclick="return confirm('Delete this user?');">Delete</a>
-                    <?php else: ?>
-                        <span style="color:#666">(You)</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-            </table>
+        <div class="main-content">
+            <div class="header">
+                <h1>Manage Members</h1>
+            </div>
+
+            <?php if ($message): ?>
+                <div class="message"><?php echo htmlspecialchars($message); ?></div>
+            <?php endif; ?>
+
+            <div class="section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($users as $u): ?>
+                        <tr>
+                            <td><?php echo (int)$u['userID']; ?></td>
+                            <td><?php echo htmlspecialchars($u['fullName']); ?></td>
+                            <td><?php echo htmlspecialchars($u['email']); ?></td>
+                            <td><?php echo htmlspecialchars($u['userType']); ?></td>
+                            <td>
+                                <form method="post" class="inline">
+                                    <input type="hidden" name="action" value="setRole">
+                                    <input type="hidden" name="userID" value="<?php echo (int)$u['userID']; ?>">
+                                    <select name="role">
+                                        <option value="user" <?php if ($u['userType']==='user') echo 'selected'; ?>>User</option>
+                                        <option value="admin" <?php if ($u['userType']==='admin') echo 'selected'; ?>>Admin</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </form>
+                                <?php if ((int)$u['userID'] !== (int)$_SESSION['userID']): ?>
+                                    <a href="manage_members.php?delete=<?php echo (int)$u['userID']; ?>" class="btn btn-danger" onclick="return confirm('Delete this user?');">Delete</a>
+                                <?php else: ?>
+                                    <span style="color:#666">(You)</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 </body>
 </html>

@@ -142,50 +142,97 @@ if ($res) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Manage Products</title>
-    <link rel="stylesheet" href="style.css">
     <style>
-        /* Small admin-like additions to match dashboard */
-        .container{max-width:1200px;margin:30px auto;padding:20px}
-        .header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-        .btn{padding:8px 12px;border-radius:6px;text-decoration:none;display:inline-block}
-        .btn-primary{background:#3498db;color:#fff}
-        .section{background:#fff;padding:18px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-        table{width:100%;border-collapse:collapse;margin-top:12px}
-        th,td{padding:12px;border-bottom:1px solid #eef2f5;text-align:left}
-        form.inline{display:inline}
-        input,select,button{padding:8px;border-radius:6px;border:1px solid #ddd}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; color: #333; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar h1 { font-size: 24px; margin-bottom: 30px; text-align: center; }
+        .nav-menu { list-style: none; }
+        .nav-menu li { margin-bottom: 15px; }
+        .nav-menu a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 5px; transition: background-color 0.3s; }
+        .nav-menu a:hover { background-color: #34495e; }
+        .nav-menu a.active { background-color: #3498db; }
+        .main-content { margin-left: 250px; flex: 1; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .message { background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 5px; margin-bottom: 20px; }
+        .btn { padding: 10px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-success { background-color: #27ae60; color: white; }
+        .btn-success:hover { background-color: #229954; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-danger:hover { background-color: #c0392b; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+        th { background-color: #f8f9fa; font-weight: 600; color: #2c3e50; }
+        tr:hover { background-color: #f8f9fa; }
+        input, select { padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; z-index: 999; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; }
+        .modal-wide { max-width: 900px; max-height: 90vh; overflow: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input { width: 100%; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <a href="backend_8sp/index.php" class="btn btn-primary">← Back to Dashboard</a>
-            <h1>Manage Products</h1>
-        </div>
-        <?php if ($message): ?><p><strong><?php echo htmlspecialchars($message); ?></strong></p><?php endif; ?>
+        <aside class="sidebar">
+            <h1>Dashboard</h1>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="backend_8sp/index.php">🏠 Home</a></li>
+                    <li><a href="backend_8sp/manage_members.php">👥 Members</a></li>
+                    <li><a href="manage_products.php" class="active">📦 Products & Prices</a></li>
+                    <li><a href="transaction_reports.php">📊 Transaction Reports</a></li>
+                    <li><a href="backend_8sp/logout.php">🚪 Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-        <div class="section">
-            <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-                <button id="btnAdd" class="btn btn-primary" style="font-size:18px;padding:12px 20px">＋ Add Product</button>
-                <button id="btnEdit" class="btn" style="font-size:18px;padding:12px 20px;border:1px solid #ccc;background:#fff">✎ Edit / Delete</button>
+        <div class="main-content">
+            <div class="header">
+                <h1>Manage Products</h1>
             </div>
 
-            <h2>Products List</h2>
-            <table>
-        <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Image</th><th>Stock</th></tr></thead>
-        <tbody>
-        <?php foreach ($products as $p): ?>
-            <tr>
-                <td><?php echo (int)$p['productID']; ?></td>
-                <td><?php echo htmlspecialchars($p['name']); ?></td>
-                <td>RM <?php echo number_format((float)$p['price'],2); ?></td>
-                <td><?php echo htmlspecialchars($p['category']); ?></td>
-                <td><img src="<?php echo htmlspecialchars($p['imagePath']); ?>" alt="" style="height:40px;object-fit:cover" onerror="this.src='https://placehold.co/80x40?text=No+Image'"></td>
-                <td><?php echo (int)$p['stockQuantity']; ?></td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+            <?php if ($message): ?>
+                <div class="message"><?php echo htmlspecialchars($message); ?></div>
+            <?php endif; ?>
+
+            <div class="section">
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px">
+                    <button id="btnAdd" class="btn btn-success">➕ Add Product</button>
+                    <button id="btnEdit" class="btn btn-primary">✎ Edit / Delete</button>
+                </div>
+
+                <h2 style="margin-bottom: 15px;">Products List</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Image</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($products as $p): ?>
+                        <tr>
+                            <td><?php echo (int)$p['productID']; ?></td>
+                            <td><?php echo htmlspecialchars($p['name']); ?></td>
+                            <td>RM <?php echo number_format((float)$p['price'],2); ?></td>
+                            <td><?php echo htmlspecialchars($p['category']); ?></td>
+                            <td><img src="<?php echo htmlspecialchars($p['imagePath']); ?>" alt="" style="height:40px;object-fit:cover" onerror="this.src='https://placehold.co/80x40?text=No+Image'"></td>
+                            <td><?php echo (int)$p['stockQuantity']; ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
