@@ -1,9 +1,11 @@
 <?php
-// Chung's Database Connection Script
-$servername = "sql109.infinityfree.com";
-$username = "if0_40821930";     
-$password = "ZKkI2j1Y5bIwk";         
-$dbname = "if0_40821930_unimerch_hub "; 
+// Database Connection Script
+require_once __DIR__ . '/../config.php';
+
+$servername = DB_HOST;
+$username = DB_USERNAME;
+$password = DB_PASSWORD;
+$dbname = DB_NAME;
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -12,8 +14,5 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     // If it fails, show the error
     die("Connection failed: " . $conn->connect_error);
-} 
-
-// This confirms it works - Khalish can remove this line once tested
-// echo "Connected successfully to UniMerch Database";
+}
 ?>

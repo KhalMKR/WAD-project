@@ -2,6 +2,12 @@
 // Configuration file for sensitive data
 // Copy this file to config.php and fill in your actual credentials
 
+// Database Settings
+define('DB_HOST', 'localhost');
+define('DB_USERNAME', 'your-db-username');
+define('DB_PASSWORD', 'your-db-password');
+define('DB_NAME', 'your-database-name');
+
 // Brevo SMTP Settings
 define('SMTP_HOST', 'smtp-relay.brevo.com');
 define('SMTP_USERNAME', 'your-brevo-email@example.com');
