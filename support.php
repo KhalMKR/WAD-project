@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ),
                 'to' => array(
                     array(
-                        'email' => 'muhdkhalishreeza@gmail.com',
+                        'email' => 'afiqzharfan24@gmail.com',
                         'name' => 'UniMerch Support'
                     )
                 ),
