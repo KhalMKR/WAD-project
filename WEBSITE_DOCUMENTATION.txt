@@ -1,0 +1,397 @@
+================================================================================
+                      UNIMERCH HUB - WEBSITE DOCUMENTATION
+                          Overall Workings & Architecture
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+UniMerch Hub is a full-stack e-commerce website built with PHP, MySQL, and 
+JavaScript. It allows users to browse products, manage shopping carts, checkout, 
+and view order history. Administrators can manage products and view transaction 
+reports.
+
+HOST: Infinity Free (infinityfree.com)
+DATABASE: MySQL on sql109.infinityfree.com
+EMAIL SERVICE: Brevo API for sending emails
+
+
+TECH STACK
+================================================================================
+Frontend:
+  - HTML/CSS/JavaScript (Vanilla)
+  - No frameworks (lightweight)
+  - Responsive design
+
+Backend:
+  - PHP 7.x / 8.x
+  - MySQL database
+  - REST API endpoints for AJAX requests
+
+Libraries:
+  - PHPMailer (email sending)
+  - Brevo SMTP API (email service)
+  - dompdf (PDF generation for reports)
+  - Composer (dependency management)
+
+
+CORE FEATURES
+================================================================================
+
+1. USER MANAGEMENT
+   ├─ Register: register.html → process/register_process.php
+   │  └─ Hashes password and stores in database
+   │
+   ├─ Login: login.html → process/login_process.php
+   │  └─ Authenticates and creates session
+   │
+   ├─ Profile: profile.php
+   │  └─ View/edit user information
+   │
+   └─ Logout: logout.php
+      └─ Destroys session
+
+2. PRODUCT CATALOG
+   ├─ Display: index.php
+   │  └─ Fetches products via api/fetch_products.php
+   │
+   ├─ Details: product.php
+   │  └─ Shows single product information
+   │
+   └─ Management: manage_products.php (Admin only)
+      └─ Add, edit, delete products
+
+
+3. SHOPPING CART
+   ├─ Add to Cart: api/add_to_cart.php
+   │  └─ Stores item in database cart table
+   │
+   ├─ View Cart: cart.php
+   │  └─ Fetches cart items via api/fetch_cart.php
+   │
+   ├─ Update Quantity: Sent via fetch() to cart.php
+   │  └─ Updates quantity in database
+   │
+   ├─ Remove Item: Sent via fetch() to cart.php
+   │  └─ Deletes item from cart
+   │
+   └─ Get Count: api/get_cart_count.php
+      └─ Returns number of items for header display
+
+
+4. CHECKOUT & ORDERS
+   ├─ Checkout Page: checkout.php
+   │  └─ Shows cart items and payment form
+   │
+   ├─ Process Checkout: process/checkout_process.php
+   │  ├─ Creates order in orders table
+   │  ├─ Stores items in order_items table
+   │  ├─ Attempts to send confirmation email (with timeout)
+   │  ├─ Clears user's cart
+   │  └─ Returns success/error response
+   │
+   ├─ Order History: orderhistory.php
+   │  └─ Fetches user's orders via api/fetch_orders.php
+   │
+   └─ Order Details: orderdetails.php
+      └─ Shows detailed view of single order
+
+
+5. REPORTS & ADMIN
+   ├─ Transaction Reports: transaction_reports.php
+   │  └─ Displays all orders (admin view)
+   │
+   ├─ PDF Export: transaction_reports_pdf.php
+   │  └─ Generates PDF using dompdf library
+   │
+   └─ Admin Backend: backend_8sp/
+      ├─ index.php (dashboard)
+      ├─ manage_products.php
+      ├─ manage_members.php
+      ├─ transaction_reports.php
+      └─ logout.php
+
+
+6. SUPPORT/CONTACT
+   └─ Support: support.php
+      ├─ Logged-in users can submit support requests
+      ├─ Emails sent to: afiqzharfan24@gmail.com
+      ├─ Uses Brevo REST API
+      └─ Includes user info in reply-to
+
+
+DATABASE STRUCTURE
+================================================================================
+
+KEY TABLES:
+
+users
+  - userID (int, primary key)
+  - email (varchar, unique)
+  - password (varchar, hashed)
+  - fullName (varchar)
+  - phone (varchar)
+  - address (varchar)
+  - userType (enum: 'user', 'admin')
+  - createdAt (timestamp)
+
+products
+  - productID (int, primary key)
+  - name (varchar)
+  - description (text)
+  - price (decimal)
+  - stock (int)
+  - image (varchar, filename)
+  - category (varchar)
+  - createdAt (timestamp)
+
+cart
+  - cartID (int, primary key)
+  - userID (int, foreign key)
+  - productID (int, foreign key)
+  - quantity (int)
+  - addedAt (timestamp)
+
+orders
+  - orderID (int, primary key)
+  - userID (int, foreign key)
+  - orderNumber (varchar, unique - format: UMH-XXXXXX)
+  - totalAmount (decimal)
+  - fullName (varchar)
+  - phone (varchar)
+  - address (varchar)
+  - paymentMethod (varchar)
+  - orderDate (datetime)
+
+order_items
+  - itemID (int, primary key)
+  - orderID (int, foreign key)
+  - productID (int, foreign key)
+  - name (varchar)
+  - price (decimal)
+  - quantity (int)
+
+
+FILE STRUCTURE EXPLANATION
+================================================================================
+
+ROOT LEVEL (Main Pages)
+├─ index.php                    → Homepage with product listing
+├─ product.php                  → Single product detail page
+├─ login.html                   → Login form
+├─ register.html                → Registration form
+├─ profile.php                  → User profile page
+├─ cart.php                     → Shopping cart page
+├─ checkout.php                 → Checkout/payment page
+├─ orderhistory.php             → User's order history
+├─ orderdetails.php             → Single order detail view
+├─ support.php                  → Support/contact form
+├─ manage_products.php          → Product management (admin)
+├─ transaction_reports.php      → All orders report (admin)
+├─ transaction_reports_pdf.php  → PDF export of reports
+├─ logout.php                   → Session logout
+└─ header.php                   → Shared header/navigation
+
+/api/ (AJAX API Endpoints)
+├─ add_to_cart.php              → Add item to cart
+├─ fetch_cart.php               → Get cart items as JSON
+├─ fetch_products.php           → Get all products as JSON
+├─ fetch_orders.php             → Get user's orders as JSON
+└─ get_cart_count.php           → Get number of items in cart
+
+/process/ (Form Processors)
+├─ login_process.php            → Handle login form submission
+├─ register_process.php          → Handle registration form submission
+└─ checkout_process.php         → Handle checkout form submission
+
+/assets/ (Static Resources)
+├─ /css/
+│  └─ style.css                 → Main stylesheet
+├─ /js/
+│  ├─ admin.js                  → Admin page functionality
+│  ├─ data.js                   → Shared data loading functions
+│  └─ utils.js                  → Utility functions
+└─ /images/                     → Product images and logo
+
+/includes/
+└─ db.php                       → Database connection script
+
+/backend_8sp/ (Admin Dashboard)
+├─ index.php                    → Admin dashboard
+├─ manage_products.php          → Manage products
+├─ manage_members.php           → Manage users
+├─ transaction_reports.php      → View all orders
+└─ logout.php                   → Admin logout
+
+/phpmailer/                     → PHPMailer library for email
+/dompdf/                        → DOMPDF library for PDF generation
+/vendor/                        → Composer dependencies
+
+
+WORKFLOW: USER FLOW
+================================================================================
+
+REGISTRATION & LOGIN:
+1. User fills register.html form
+2. Submits to process/register_process.php
+3. PHP hashes password and inserts into users table
+4. User redirected to login.html
+5. User logs in, PHP creates $_SESSION['userID', 'email', 'fullName']
+6. User redirected to index.php
+
+BROWSING PRODUCTS:
+1. index.php loads
+2. JavaScript calls api/fetch_products.php via fetch()
+3. API returns JSON array of products
+4. JavaScript displays products on page
+5. User clicks product → goes to product.php with productID
+
+SHOPPING CART FLOW:
+1. User clicks "Add to Cart" on product
+2. JavaScript POST to api/add_to_cart.php with productID and quantity
+3. PHP inserts into cart table with userID
+4. Cart count updates on header via get_cart_count.php
+5. User clicks "View Cart" → cart.php
+6. JavaScript fetches cart via api/fetch_cart.php
+7. Displays items with update/remove buttons
+8. User modifies quantities or removes items
+9. Changes sent via fetch() to cart.php endpoint
+
+CHECKOUT FLOW:
+1. User clicks "Checkout" from cart.php
+2. Redirected to checkout.php
+3. Shows order summary and payment form
+4. User fills name, phone, address, payment method
+5. Submits form to process/checkout_process.php via fetch()
+6. PHP:
+   ├─ Validates user is logged in
+   ├─ Generates unique order number (UMH-XXXXXX)
+   ├─ Inserts order into orders table
+   ├─ Inserts each item into order_items table
+   ├─ Attempts to send confirmation email (5 second timeout)
+   ├─ Clears user's cart
+   └─ Returns success with orderID and orderNumber
+7. JavaScript shows receipt pop-up with order details
+
+VIEWING ORDER HISTORY:
+1. User goes to orderhistory.php
+2. JavaScript fetches api/fetch_orders.php
+3. API returns user's orders from orders table
+4. Displays list of orders with order numbers and dates
+5. User clicks order → orderdetails.php with orderID
+6. Shows full order details from orders and order_items tables
+
+ADMIN FUNCTIONS:
+1. Admin logs in (userType = 'admin')
+2. Redirected to backend_8sp/index.php instead of index.php
+3. Can manage products, users, and view all transaction reports
+4. Can export transaction reports to PDF via transaction_reports_pdf.php
+
+
+CONFIGURATION & SECURITY
+================================================================================
+
+config.php contains:
+- Database credentials (MySQL on Infinity Free)
+- Brevo API key for email service
+- SMTP credentials for PHPMailer
+- Email sender information
+
+SESSION HANDLING:
+- All pages start with session_start()
+- User authenticated via $_SESSION['userID']
+- Passwords hashed using PHP password functions
+- Some pages check userType for admin access
+
+API ENDPOINTS:
+- All API endpoints expect POST or GET requests
+- Return JSON responses
+- No API key authentication (relies on session)
+
+
+EMAIL SYSTEM
+================================================================================
+
+Confirmation Emails (on checkout):
+- Sent via PHPMailer with Brevo SMTP
+- Server: smtp-relay.brevo.com
+- Port: 587 (TLS)
+- Includes order number and total amount
+- 5-second timeout to prevent hanging on free hosting
+- If fails, order still completes successfully
+
+Support Emails:
+- User submits form on support.php
+- Sent via Brevo REST API (https://api.brevo.com/v3/smtp/email)
+- Goes to: afiqzharfan24@gmail.com
+- User's email in reply-to field
+- Uses API key from config.php
+
+NOTE: Free hosting (Infinity Free) blocks outgoing SMTP connections.
+Emails may fail at midnight during server maintenance.
+
+
+PDF GENERATION
+================================================================================
+
+transaction_reports_pdf.php:
+- Uses dompdf library to generate PDF from HTML
+- Creates table of all orders (admin view)
+- Includes order details and total amounts
+- Allows admin to download/print reports
+
+
+KNOWN ISSUES & LIMITATIONS
+================================================================================
+
+1. FREE HOSTING LIMITATIONS (Infinity Free):
+   - No outbound SMTP connections
+   - Email sending may timeout or fail
+   - Nightly maintenance windows (around midnight)
+   - Limited database connections
+   - Resource limitations
+
+2. SESSION ISSUES:
+   - Some pages use relative fetch() paths which may fail on subfolders
+   - Cookies depend on same-origin policy
+
+3. EMAIL RELIABILITY:
+   - Brevo free tier has daily sending limits (~300 emails/day)
+   - May hit limit and block further emails
+   - SMTP connections timeout after 5 seconds
+
+
+FUTURE IMPROVEMENTS
+================================================================================
+
+- Add payment gateway integration (Stripe, PayPal)
+- Implement proper API authentication tokens
+- Add email queue system for reliable delivery
+- Add product search and filtering
+- Add product reviews and ratings
+- Migrate to paid hosting for better email reliability
+- Add inventory management
+- Add order tracking for customers
+- Add promotional codes/discounts
+- Implement better error logging
+
+
+DEPLOYMENT NOTES
+================================================================================
+
+To deploy on Infinity Free:
+1. Upload all files to public_html folder
+2. Import database: db to import/if0_40821930_unimerch_hub.sql
+3. Verify config.php has correct database credentials
+4. Ensure dompdf and phpmailer directories are in place
+5. Test checkout without relying on email functionality
+6. Check admin backend access via backend_8sp/
+
+
+SUPPORT CONTACT
+================================================================================
+
+Support requests go to: afiqzharfan24@gmail.com
+Admin can view transaction reports in backend_8sp/transaction_reports.php
+
+================================================================================
+Last Updated: January 8, 2026
