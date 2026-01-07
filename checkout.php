@@ -264,12 +264,12 @@ if (empty($cartItems)) {
                 }).then(r => r.json())
                 .then(response => {
                     if (response.success) {
-                        const orderID = response.orderID;
+                        const orderNumber = response.orderNumber;
                         const now = new Date();
                         const dateStr = now.toLocaleDateString() + " " + now.toLocaleTimeString();
 
                         // Populate Receipt
-                        document.getElementById('receiptID').innerText = orderID;
+                        document.getElementById('receiptID').innerText = orderNumber;
                         document.getElementById('receiptDate').innerText = dateStr;
                         document.getElementById('resName').innerText = document.getElementById('custName').value;
                         document.getElementById('resPhone').innerText = document.getElementById('custPhone').value;
