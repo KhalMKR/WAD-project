@@ -1,13 +1,6 @@
 <?php
 session_start();
 
-// Include PHPMailer
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require 'phpmailer/Exception.php';
-require 'phpmailer/PHPMailer.php';
-require 'phpmailer/SMTP.php';
 require 'config.php'; // Include configuration
 
 // Redirect admin users back to admin dashboard
@@ -35,34 +28,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = htmlspecialchars(trim($_POST['message'] ?? ''));
     
     if (!empty($subject) && !empty($message)) {
-        // Send email using PHPMailer
+        // Send email using Brevo REST API
         try {
-            $mail = new PHPMailer(true);
+            $emailData = array(
+                'sender' => array(
+                    'name' => 'UniMerch Hub',
+                    'email' => 'muhdkhalishreeza@gmail.com'
+                ),
+                'to' => array(
+                    array(
+                        'email' => 'muhdkhalishreeza@gmail.com',
+                        'name' => 'UniMerch Support'
+                    )
+                ),
+                'replyTo' => array(
+                    'email' => $email,
+                    'name' => $fullName
+                ),
+                'subject' => "Support Request: " . $subject,
+                'htmlContent' => "<p><strong>From:</strong> " . $fullName . " (" . $email . ")</p><p><strong>Message:</strong></p><p>" . nl2br($message) . "</p>"
+            );
             
-            // Server settings - Brevo SMTP
-            $mail->isSMTP();
-            $mail->Host       = SMTP_HOST;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USERNAME;
-            $mail->Password   = SMTP_PASSWORD;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = SMTP_PORT;
+            // Initialize cURL request
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => BREVO_API_URL,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($emailData),
+                CURLOPT_HTTPHEADER => array(
+                    "api-key: " . BREVO_API_KEY,
+                    "Content-Type: application/json",
+                    "Accept: application/json"
+                ),
+            ));
             
-            // Recipients
-            $mail->setFrom($email, $fullName);
-            $mail->addAddress('muhdkhalishreeza@gmail.com', 'UniMerch Support');
-            $mail->addReplyTo($email, $fullName);
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
             
-            // Content
-            $mail->isHTML(false);
-            $mail->Subject = "Support Request: " . $subject;
-            $mail->Body    = "From: $fullName ($email)\n\nMessage:\n$message";
-            
-            $mail->send();
-            $messageSent = true;
+            if ($err) {
+                $error = 'Failed to send message. Please try again later.';
+                error_log("Email error: $err");
+            } else {
+                $responseData = json_decode($response, true);
+                if (isset($responseData['messageId']) || isset($responseData['id'])) {
+                    $messageSent = true;
+                } else {
+                    $error = 'Failed to send message. Please try again later.';
+                    error_log("Brevo API error: $response");
+                }
+            }
         } catch (Exception $e) {
             $error = 'Failed to send message. Please try again later.';
-            // You can log the error: error_log("Email error: {$mail->ErrorInfo}");
+            error_log("Email exception: " . $e->getMessage());
         }
     } else {
         $error = 'Please fill in all fields.';
