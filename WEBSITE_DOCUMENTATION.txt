@@ -387,6 +387,225 @@ To deploy on Infinity Free:
 6. Check admin backend access via backend_8sp/
 
 
+DOM (DOCUMENT OBJECT MODEL) - HOW IT'S USED
+================================================================================
+
+WHAT IS DOM?
+DOM = Document Object Model
+It's a programming interface that represents your HTML page as a tree of objects
+that JavaScript can interact with.
+
+DOM allows JavaScript to:
+- Read HTML elements from the page
+- Modify element content and properties
+- Create/Delete elements dynamically
+- Listen to user interactions (clicks, typing, etc.)
+
+
+DOM METHODS USED IN YOUR WEBSITE
+================================================================================
+
+1. getElementById() - Find element by ID
+   Example: document.getElementById('cartCount')
+   Used in: Updating cart badge number
+
+2. querySelector() - Find element by CSS selector
+   Example: productCard.querySelector('.product-name')
+   Used in: Getting product name/price when adding to cart
+
+3. innerText - Get/set text content
+   Example: element.innerText = "New text"
+   Used in: Displaying order numbers, prices, dates
+
+4. innerHTML - Get/set HTML content
+   Example: container.innerHTML = "<h1>Orders</h1>"
+   Used in: Dynamically creating order list from database data
+
+5. addEventListener() - Listen for user actions
+   Example: window.addEventListener('load', function() { ... })
+   Used in: Running code when page loads or user clicks
+
+6. remove() - Delete element from page
+   Example: element.remove()
+   Used in: Deleting products from admin panel
+
+7. classList - Add/remove CSS classes
+   Example: element.classList.add('active')
+   Used in: Styling elements dynamically
+
+
+DOM IN ACTION - YOUR SPECIFIC FEATURES
+================================================================================
+
+FEATURE 1: ADDING TO CART (index.php + assets/js/data.js)
+============================================================
+Code:
+  const productCard = document.getElementById(`product-${productId}`);
+  const item = {
+      id: productId,
+      name: productCard.querySelector('.product-name').innerText,
+      price: productCard.querySelector('.product-price').innerText,
+      quantity: 1
+  };
+
+Flow:
+  1. User clicks "Add to Cart" button
+  2. JavaScript finds product card using getElementById()
+  3. Extracts product name/price using querySelector()
+  4. Gets text content using innerText
+  5. Adds to cart array
+  6. Updates cart badge using updateCartCount()
+
+Result: User sees product added without page refresh
+
+
+FEATURE 2: UPDATING CART COUNT BADGE
+=====================================
+Code:
+  const countElement = document.getElementById('cartCount');
+  if (countElement) {
+      countElement.innerText = data.count;
+  }
+
+Flow:
+  1. After adding to cart, updateCartCount() is called
+  2. Finds the cart badge element with getElementById()
+  3. Updates the number using innerText
+  4. Badge refreshes in real-time
+
+Result: Red badge shows updated item count instantly
+
+
+FEATURE 3: DISPLAYING ORDER HISTORY (orderhistory.php + assets/js/data.js)
+===========================================================================
+Code:
+  function displayOrders(orders) {
+      const container = document.getElementById('transactionsList');
+      container.innerHTML = orders.map(order => `
+          <div class="transaction-item">
+              <h4>Order #${order.orderID}</h4>
+              <div class="transaction-date">${new Date(order.orderDate).toLocaleDateString()}</div>
+              <div class="transaction-amount">RM ${parseFloat(order.totalAmount).toFixed(2)}</div>
+          </div>
+      `).join('');
+  }
+
+Flow:
+  1. Page loads, addEventListener('load') triggers
+  2. Fetches orders from api/fetch_orders.php (returns JSON)
+  3. Finds container element using getElementById()
+  4. Uses innerHTML to inject HTML for each order
+  5. JavaScript converts data into HTML table/list
+
+Result: Order history dynamically displayed from database
+
+
+FEATURE 4: PAGE LOAD EVENT LISTENER
+====================================
+Code:
+  window.addEventListener('load', function() {
+      if (document.getElementById('transactionsList')) {
+          loadOrders();
+      }
+  });
+
+What it does:
+  - Waits for entire page to load (including images)
+  - Checks if order list container exists on page
+  - Automatically loads and displays orders
+  - No manual action needed from user
+
+Used in: orderhistory.php, orderdetails.php
+
+
+FEATURE 5: ADMIN DELETE PRODUCT (manage_products.php + assets/js/admin.js)
+===========================================================================
+Code:
+  function deleteProduct(id) {
+      const element = document.getElementById(`product-${id}`);
+      if (element) {
+          element.remove();
+          console.log("Product " + id + " deleted.");
+      }
+  }
+
+Flow:
+  1. Admin clicks delete button on product
+  2. JavaScript finds product element using getElementById()
+  3. Checks if element exists
+  4. Removes it from page with .remove()
+  5. Product disappears instantly
+
+Result: Product removed from page without reload
+
+
+DOM VS. HTML
+================================================================================
+
+HTML:
+- Static structure of page
+- Written in file, doesn't change
+- Defines what elements exist
+
+DOM:
+- Dynamic representation of HTML in browser's memory
+- Can be modified by JavaScript
+- Reflects current state of page
+
+Example:
+  HTML (in file):        <div id="cartCount">5</div>
+  
+  JavaScript changes it: document.getElementById('cartCount').innerText = '6';
+  
+  DOM now shows:         <div id="cartCount">6</div>
+
+
+COMMON DOM PATTERNS IN YOUR CODE
+================================================================================
+
+Pattern 1: Find + Read
+  const element = document.getElementById('myId');
+  const text = element.innerText;
+
+Pattern 2: Find + Modify
+  document.getElementById('cartCount').innerText = newCount;
+
+Pattern 3: Find + Replace Content
+  document.getElementById('container').innerHTML = '<p>New content</p>';
+
+Pattern 4: Find + Delete
+  document.getElementById('product-1').remove();
+
+Pattern 5: Find + Listen
+  document.getElementById('button').addEventListener('click', function() {
+      // Do something
+  });
+
+
+BENEFITS OF USING DOM
+================================================================================
+
+1. No Page Reload Needed
+   - Add to cart updates instantly
+   - Order list appears without refresh
+   - Better user experience
+
+2. Dynamic Content
+   - Display different data based on user
+   - Show/hide elements conditionally
+   - Real-time updates
+
+3. Interactive Features
+   - Respond to clicks, typing, scrolling
+   - Update UI in response to user actions
+   - Smooth interactions
+
+4. Efficient
+   - Only update what changed
+   - Don't reload entire page
+   - Faster, less server requests
+
+
 SUPPORT CONTACT
 ================================================================================
 
