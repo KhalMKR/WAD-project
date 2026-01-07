@@ -129,10 +129,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // ---------------------------------------------------------
-        // SEND EMAIL NOTIFICATION USING PHPMAILER
+        // SEND EMAIL NOTIFICATION USING PHPMAILER (WITH TIMEOUT)
         // ---------------------------------------------------------
         try {
             $mail = new PHPMailer(true);
+            
+            // Set a 5-second timeout to prevent hanging on free hosting
+            ini_set('default_socket_timeout', 5);
             
             // Server settings - Brevo SMTP
             $mail->isSMTP();
@@ -142,6 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mail->Password   = SMTP_PASSWORD;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = SMTP_PORT;
+            $mail->Timeout    = 5; // 5 second timeout for PHPMailer
             
             // Recipients
             $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
@@ -165,11 +169,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             $mail->Body = $message;
             
-            // Send email (suppress errors to prevent breaking JSON response)
+            // Send email - if it fails, order still completes
             @$mail->send();
         } catch (Exception $e) {
             // Silently fail - order still processes
-            // You can log the error: error_log("Email error: {$mail->ErrorInfo}");
+            // If email fails, user still gets order confirmation on screen
+            error_log("Order {$orderNumber} created but email failed: {$e->getMessage()}");
         }
         // ---------------------------------------------------------
 
