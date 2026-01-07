@@ -23,49 +23,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['fullName'] = $user['fullName'];
             $_SESSION['userType'] = $user['userType'];
             
-            // Redirect based on user type
+            // Return success with redirect URL
             if ($user['userType'] === 'admin') {
-                header('Location: ../backend_8sp/index.php');
+                echo 'SUCCESS ADMIN';
             } else {
-                header('Location: ../index.php');
+                echo 'SUCCESS USER';
             }
             exit();
         } else {
-            // POP-UP ALERT FOR WRONG PASSWORD
-            echo "<script>
-                alert('Invalid email or password. Please try again.');
-                window.location.href = '../login.html';
-            </script>";
+            // Wrong password
+            echo "ERROR: Invalid email or password. Please try again.";
             exit();
         }
     } else {
-        // POP-UP ALERT FOR WRONG EMAIL
-        echo "<script>
-            alert('Invalid email or password. Please try again.');
-            window.location.href = '../login.html';
-        </script>";
+        // No email found
+        echo "ERROR: Invalid email or password. Please try again.";
         exit();
     }
     
     $stmt->close();
 }
 ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <?php if (isset($error)): ?>
-        <p style="color: red;"><?php echo $error; ?></p>
-    <?php endif; ?>
-
-    <form method="POST">
-        <label>Email: <input type="email" name="email" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>

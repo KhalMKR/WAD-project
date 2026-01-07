@@ -21,6 +21,7 @@ session_destroy();
 <!DOCTYPE html>
 <html>
 <head>
+    <?php include 'header.php'; ?>
     <title>Logging out...</title>
 </head>
 <body>

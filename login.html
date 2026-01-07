@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Register</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -75,6 +77,27 @@
             color: #666;
             font-size: 14px;
         }
+        .error-message {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            border-left: 5px solid #d63031;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .error-message.show {
+            display: block;
+        }
+        input[type="email"].error-input,
+        input[type="password"].error-input {
+            border-color: #ff6b6b !important;
+            background-color: #ffe0e0;
+        }
     </style>
 </head>
 <body>
@@ -84,7 +107,8 @@
     </div>
     <div class="login-container">
         <h1>Login</h1>
-        <form id="loginForm" action="process/login_process.php" method="POST">
+        <div id="errorMessage" class="error-message"></div>
+        <form id="loginForm" novalidate>
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
@@ -93,11 +117,139 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit">Log In</button>
+            <button type="button" id="submitBtn">Log In</button>
         </form>
         <div class="login-footer">
             Don't have an account? <a href="register.html" style="color: #667eea; text-decoration: none;">Sign up</a>
         </div>
     </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Function to show error animation
+        function showErrorAnimation(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+
+            // Shake animation for the container
+            anime({
+                targets: '.login-container',
+                translateX: [
+                    { value: -10, duration: 50 },
+                    { value: 10, duration: 50 },
+                    { value: -10, duration: 50 },
+                    { value: 10, duration: 50 },
+                    { value: 0, duration: 50 }
+                ],
+                easing: 'easeInOutQuad'
+            });
+
+            // Fade in and slide error message
+            anime.set(errorMessage, {
+                opacity: 0,
+                translateX: -20
+            });
+
+            anime({
+                targets: errorMessage,
+                opacity: 1,
+                translateX: 0,
+                duration: 400,
+                easing: 'easeOutQuad'
+            });
+
+            // Add error state to inputs
+            emailInput.classList.add('error-input');
+            passwordInput.classList.add('error-input');
+
+            // Pulse animation on inputs
+            anime({
+                targets: '#email, #password',
+                borderColor: ['#ff6b6b', '#ff8888', '#ff6b6b'],
+                duration: 1000,
+                easing: 'easeInOutQuad'
+            });
+        }
+
+        // Function to clear error animation
+        function clearError() {
+            errorMessage.classList.remove('show');
+            emailInput.classList.remove('error-input');
+            passwordInput.classList.remove('error-input');
+        }
+
+        // Clear error when user types
+        emailInput.addEventListener('input', clearError);
+        passwordInput.addEventListener('input', clearError);
+
+        // Button click handler
+        submitBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // Validation check
+            if (!email || !password) {
+                showErrorAnimation('Please fill in all fields!');
+                return;
+            }
+
+            try {
+                // Submit form via AJAX
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('password', password);
+
+                const response = await fetch('process/login_process.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const text = await response.text().then(t => t.trim());
+
+                console.log('Response:', text); // Debug log
+
+                // Check if response contains error
+                if (text.startsWith('ERROR:')) {
+                    const errorText = text.replace('ERROR:', '').trim();
+                    showErrorAnimation(errorText);
+                } else if (text.startsWith('SUCCESS')) {
+                    // Success animation
+                    anime({
+                        targets: '.login-container',
+                        opacity: 0.8,
+                        duration: 500,
+                        easing: 'easeOutQuad'
+                    });
+                    
+                    // Redirect after animation
+                    setTimeout(() => {
+                        const isAdmin = text.includes('ADMIN');
+                        window.location.href = isAdmin ? 'backend_8sp/index.php' : 'index.php';
+                    }, 500);
+                } else {
+                    showErrorAnimation('Unexpected response from server');
+                }
+            } catch (error) {
+                showErrorAnimation('Connection error. Please try again!');
+                console.error('Error:', error);
+            }
+        });
+
+        // Check for error messages on page load (from previous attempt)
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                const error = urlParams.get('error');
+                showErrorAnimation(decodeURIComponent(error));
+            }
+        });
+    </script>
 </body>
 </html>
