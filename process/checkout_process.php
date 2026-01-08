@@ -129,52 +129,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // ---------------------------------------------------------
-        // SEND EMAIL NOTIFICATION USING PHPMAILER (WITH TIMEOUT)
+        // SEND EMAIL NOTIFICATION USING BREVO REST API
         // ---------------------------------------------------------
         try {
-            $mail = new PHPMailer(true);
+            $emailData = array(
+                'sender' => array(
+                    'name' => EMAIL_FROM_NAME,
+                    'email' => EMAIL_FROM
+                ),
+                'to' => array(
+                    array(
+                        'email' => $email,
+                        'name' => $custName ?: 'Customer'
+                    )
+                ),
+                'replyTo' => array(
+                    'email' => EMAIL_REPLY_TO,
+                    'name' => EMAIL_FROM_NAME
+                ),
+                'subject' => "Order Confirmation - Order " . $orderNumber,
+                'htmlContent' => "
+                    <h2>Order Confirmation</h2>
+                    <p>Dear " . ($custName ?: "Customer") . ",</p>
+                    <p>Thank you for shopping with UniMerch Hub! Your order has been placed successfully.</p>
+                    <h3>Order Details:</h3>
+                    <table style='border-collapse: collapse; width: 100%;'>
+                        <tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Order Number:</strong></td><td style='border: 1px solid #ddd; padding: 8px;'>" . $orderNumber . "</td></tr>
+                        <tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Total Amount:</strong></td><td style='border: 1px solid #ddd; padding: 8px;'>RM " . number_format($total, 2) . "</td></tr>
+                        <tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>Payment Method:</strong></td><td style='border: 1px solid #ddd; padding: 8px;'>" . $paymentMethod . "</td></tr>
+                    </table>
+                    <p style='margin-top: 20px;'>We will process your order shortly.</p>
+                    <p>Best Regards,<br>UniMerch Hub Team</p>
+                "
+            );
             
-            // Set a 5-second timeout to prevent hanging on free hosting
-            ini_set('default_socket_timeout', 5);
+            // Send via Brevo REST API
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => BREVO_API_URL,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($emailData),
+                CURLOPT_HTTPHEADER => array(
+                    "api-key: " . BREVO_API_KEY,
+                    "Content-Type: application/json",
+                    "Accept: application/json"
+                ),
+            ));
             
-            // Server settings - Brevo SMTP
-            $mail->isSMTP();
-            $mail->Host       = SMTP_HOST;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USERNAME;
-            $mail->Password   = SMTP_PASSWORD;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = SMTP_PORT;
-            $mail->Timeout    = 5; // 5 second timeout for PHPMailer
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
             
-            // Recipients
-            $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
-            $mail->addAddress($email, $custName ?: 'Customer');
-            $mail->addReplyTo(EMAIL_REPLY_TO, 'Support');
-            
-            // Content
-            $mail->isHTML(false);
-            $mail->Subject = "Order Confirmation - Order " . $orderNumber;
-            
-            $message = "Dear " . ($custName ?: "Customer") . ",\n\n";
-            $message .= "Thank you for shopping with UniMerch Hub! Your order has been placed successfully.\n\n";
-            $message .= "Order Details:\n";
-            $message .= "--------------------------------\n";
-            $message .= "Order Number: " . $orderNumber . "\n";
-            $message .= "Total Amount: RM " . number_format($total, 2) . "\n";
-            $message .= "Payment Method: " . $paymentMethod . "\n";
-            $message .= "--------------------------------\n\n";
-            $message .= "We will process your order shortly.\n\n";
-            $message .= "Best Regards,\nUniMerch Hub Team";
-            
-            $mail->Body = $message;
-            
-            // Send email - if it fails, order still completes
-            @$mail->send();
+            if ($err) {
+                error_log("Order {$orderNumber} email failed: {$err}");
+            } else {
+                $responseData = json_decode($response, true);
+                if (!isset($responseData['messageId']) && !isset($responseData['id'])) {
+                    error_log("Brevo API error for order {$orderNumber}: {$response}");
+                }
+            }
         } catch (Exception $e) {
-            // Silently fail - order still processes
-            // If email fails, user still gets order confirmation on screen
-            error_log("Order {$orderNumber} created but email failed: {$e->getMessage()}");
+            error_log("Order {$orderNumber} email exception: " . $e->getMessage());
         }
         // ---------------------------------------------------------
 
